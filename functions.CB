@@ -6,6 +6,14 @@ Function y2ty(_y)
 	Return _y
 End Function
 
+Function tx2x(_tx)
+	Return _tx
+End Function
+
+Function ty2y(_ty)
+	Return _ty
+End Function
+
 Function loadFrames(_name$, _direction)
 	mem = MakeMEMBlock(8)
 
@@ -14,6 +22,7 @@ Function loadFrames(_name$, _direction)
 
 	dat = OpenToRead("media/tiles/" + _name + ".txt")
 	img = LoadImage("media/tiles/" + _name + ".png")
+'	MaskImage img, 255, 0, 255
 
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
@@ -39,9 +48,7 @@ Function newAnimation(_frames, _name$, _direction)
 End Function
 
 Function getAnimation(_name$, _direction)
-	Print "aoe: getAnimation() - " + _name + ":" + _direction
 	For _animation.animation = Each animation
-		Print "aoe: getAnimation() - For - " + _animation\name + ":" + _animation\direction + ":" + _animation\frames
 		//todo: jos ei löydy samaa direction, niin lähin.
 		If (_animation\name = _name And _animation\direction = _direction) Then Return ConvertToInteger(_animation)
 	Next _animation
@@ -100,26 +107,26 @@ Function newEntity(_prototype)
 End Function
 
 Function drawWorld()
-	For x = 0 To MW
-		For y = 0 To MH
-	Print "aoe: drawWorld() 1" //DEBUG
-			_tile.tile = ConvertToType(map(x, y))
-	Print "aoe: drawWorld() 2" //DEBUG
-			_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
-	Print "aoe: drawWorld() 3" //DEBUG
-			_anim.animation = ConvertToType(_tilePrototype\anim)
-	Print "aoe: drawWorld() 4" //DEBUG
-			_img = PeekInt(_anim\frames, 3)
+	For z = 0 To 2*MS-1
+		For y = 0 To MS-Abs(MS-z)-1 //TODO: use While here
+			nx = Max(0,z-MS)+y
+			ny = Min(MS,z)-y
 			
-			DrawImage _img, 0, 0
+			'Print "aoe: drawWorld - ("+z+", "+y+") -> ("+nx+","+ny+")"
+
+			_tile.tile = ConvertToType(map(nx, ny))
+			_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
+			_anim.animation = ConvertToType(_tilePrototype\anim)
+
+			DrawImage PeekInt(_anim\frames, 3), 0, 0
 		Next y
-	Next x
+	Next z
 End Function
 
 Function generateMap()
 	Print "aoe: generateMap()" //DEBUG
-	For x = 0 To MW
-		For y = 0 To MH
+	For x = 0 To MS
+		For y = 0 To MS
 			prototype = getTilePrototype("grass")
 			map(x, y) = newTile(prototype)
 		Next y
@@ -128,5 +135,5 @@ End Function
 
 Function initMap()
 	Print "aoe: iniMap()" //DEBUG
-	ReDim map(MW, MH)
+	ReDim map(MS, MS)
 End Function

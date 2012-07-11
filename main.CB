@@ -1,6 +1,8 @@
+DefaultMask OFF
+
 Global SW,SH 'screen size
 Global TS, TW, TH, TW2, TH2 'tile size
-Global MW, MH 'map size
+Global MS 'map size
 
 SW = 640 'screen width
 SH = 480 'screen height
@@ -13,8 +15,7 @@ TH = 64 'tile size
 TW2 = TW/2
 TH2 = TH/2
 
-MW = 32 'map width
-MH = 32 'map height
+MS = 32
 
 SCREEN SW, SH
 
@@ -25,7 +26,7 @@ Include "functions.cb"
 cbeShowConsole(True)
 
 
-Dim map(MW, MH)
+Dim map(MS, MS)
 
 initMap()
 loadTileAnimations()
