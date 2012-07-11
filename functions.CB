@@ -6,19 +6,30 @@ Function y2ty(_y)
 	Return _y
 End Function
 
+Function loadFrames(_name$, _direction)
+	mem = MakeMEMBlock(8)
 
-Function loadFrames(_name, _direction)
-	mem = MakeMEMBlock(256)
+	If (Not FileExists("media/tiles/" + _name + ".txt")) Then MakeError "file media/tiles/" + _name + ".txt Not exists"
+	If (Not FileExists("media/tiles/" + _name + ".png")) Then MakeError "file media/tiles/" + _name + ".png Not exists"
+
+	dat = OpenToRead("media/tiles/" + _name + ".txt")
+	img = LoadImage("media/tiles/" + _name + ".png")
+
+	width = Int(ReadLine(dat))
+	height = Int(ReadLine(dat))
+	wimg = (width+height)*TW2
+
+	framesCount = Int(ImageWidth(img)/wimg)
 	
-	PokeByte mem, 0, TODO
-	
+	PokeByte mem, 0, framesCount
+	PokeInt  mem, 3, img
 	
 	Return mem
 End Function 
 
 // ANIMAATIOT >>>>>>>>>>>>>>>
 
-Function newAnimation(_frames, _name, _direction)
+Function newAnimation(_frames, _name$, _direction)
 	_newAnimation.animation	= New(animation)
 	_newAnimation\frames	= _frames
 	_newAnimation\name		= _name
@@ -27,12 +38,20 @@ Function newAnimation(_frames, _name, _direction)
 	Return ConvertToInteger(_newAnimation)
 End Function
 
-Function getAnimation(_animation, _direction)
-
+Function getAnimation(_name$, _direction)
+	Print "aoe: getAnimation() - " + _name + ":" + _direction
+	For _animation.animation = Each animation
+		Print "aoe: getAnimation() - For - " + _animation\name + ":" + _animation\direction + ":" + _animation\frames
+		//todo: jos ei löydy samaa direction, niin lähin.
+		If (_animation\name = _name And _animation\direction = _direction) Then Return ConvertToInteger(_animation)
+	Next _animation
+	MakeError "aoe: ERROR - getAnimation() failed" //DEBUG
+	Return False
 End Function
 
 // ANIMAATIOT <<<<<<<<<<<<<<<
 // TILET >>>>>>>>>>>>>>>
+
 Function loadTileAnimations()
 	newAnimation(loadFrames("grass", 0), "grass", 0)
 End Function
@@ -43,22 +62,23 @@ Function loadTilePrototypes()
 	newTilePrototype("grass", True, False, getAnimation("grass", 0))
 EndFunction
 
-Function newTilePrototype(_name, _isWalkable, _isSailable, _animation)
+Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
 	tileCounter = tileCounter + 1
 	_newTilePrototype.tilePrototype = New(tilePrototype)
 	_newTilePrototype\uid = tileCounter
 	_newTilePrototype\name = _name
 	_newTilePrototype\isWalkable = _isWalkable
 	_newTilePrototype\isSailable = _isSailable
-	_newTilePrototype\animation = _animation
+	_newTilePrototype\anim = _animation
 	
 	Return ConvertToInteger(_newTilePrototype)
 EndFunction
 
-Function getTilePrototype(_name)
+Function getTilePrototype(_name$)
 	For _tilePrototype.tilePrototype = Each tilePrototype
 		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
 	Next _tilePrototype
+	MakeError "aoe: ERROR - getTilePrototype() failed" //DEBUG
 	Return False
 EndFunction
 
@@ -80,6 +100,20 @@ Function newEntity(_prototype)
 End Function
 
 Function drawWorld()
+	For x = 0 To MW
+		For y = 0 To MH
+	Print "aoe: drawWorld() 1" //DEBUG
+			_tile.tile = ConvertToType(map(x, y))
+	Print "aoe: drawWorld() 2" //DEBUG
+			_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
+	Print "aoe: drawWorld() 3" //DEBUG
+			_anim.animation = ConvertToType(_tilePrototype\anim)
+	Print "aoe: drawWorld() 4" //DEBUG
+			_img = PeekInt(_anim\frames, 3)
+			
+			DrawImage _img, 0, 0
+		Next y
+	Next x
 End Function
 
 Function generateMap()

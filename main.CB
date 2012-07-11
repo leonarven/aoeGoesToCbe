@@ -1,11 +1,17 @@
 Global SW,SH 'screen size
-Global TS 'tile size
+Global TS, TW, TH, TW2, TH2 'tile size
 Global MW, MH 'map size
 
 SW = 640 'screen width
 SH = 480 'screen height
 
-TS = 16 'tile size
+//TS = 16 'tile size
+
+TW = 128 'tile size
+TH = 64 'tile size
+
+TW2 = TW/2
+TH2 = TH/2
 
 MW = 32 'map width
 MH = 32 'map height
@@ -16,26 +22,21 @@ Include "customfunctions.cb"
 Include "types.cb"
 Include "functions.cb"
 
-'cbeShowConsole(True)
+cbeShowConsole(True)
 
 
 Dim map(MW, MH)
 
 initMap()
+loadTileAnimations()
+loadTilePrototypes()
+generateMap()
 
 Repeat
 	Line 0,0,Rand(255),Rand(255)
 	
 	
-	
-	Text 0,0,map(0,0)
-	Text 0,20,map(1,1)
-	Text 0,40,map(2,2)
-	
-	
-	
 	drawWorld()
-
 	SetWindow "FPS: " + FPS()
 	DrawScreen
 Forever

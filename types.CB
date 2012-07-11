@@ -46,7 +46,7 @@ End Type
 Type tilePrototype
 	Field isWalkable	'voiko tassa kavella
 	Field isSailable	'voiko veneilla paalla
-	Field animation		'tilen grafiikka
+	Field anim			'tilen grafiikka
 	Field name As String			
 	Field uid			
 End Type
