@@ -1,0 +1,17 @@
+Function x2tx(x)
+	Return x
+End Function
+
+Function y2ty(y)
+	Return y
+End Function
+
+Function drawWorld()
+	
+	
+	
+	
+	
+	
+	
+End Function

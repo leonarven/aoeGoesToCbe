@@ -1,0 +1,22 @@
+Type entityPrototype
+	Field hp		'maksimi-HP
+	Field name		'nimi
+	Field player	'pelaajan tunniste
+	Field attack	
+	Field defence	
+	Field actions	'memblock
+End Type
+
+Type entity
+	Field x			'x
+	Field y			'y
+	Field uid		'uniikki
+	Field prototype	'entiteetin prototyyppi
+	Field hp		'hp
+	Field name
+End Type
+
+Type tile
+	Field gfx	'grafiikka
+	Field uid	'uniikki
+End Type
