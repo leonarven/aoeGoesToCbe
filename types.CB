@@ -4,19 +4,61 @@ Type entityPrototype
 	Field player	'pelaajan tunniste
 	Field attack	
 	Field defence	
-	Field actions	'memblock
+	Field abilities	'muisipala - viittaukset actionprototypeseihin
+	Field LOS		
+	Field animations 'm‰‰r‰‰ animaatiot
+	Field speed As Float
 End Type
+
+Type animation
+	Field frames	'muistipala kuvan osista
+	Field name
+	Field direction
+End Type
+
+Type path // TODO
+	Field position
+	Field parentEntity
+End Type
+
+Type actionPrototype
+	Field duration
+	Field uid
+	Field description
+	Field icon
+End Type 
 
 Type entity
-	Field x			'x
-	Field y			'y
-	Field uid		'uniikki
 	Field prototype	'entiteetin prototyyppi
+
+	Field position			'x
+	Field uid		'uniikki
 	Field hp		'hp
-	Field name
+	Field name		
+	Field state		
+	Field group		'
+
+	Field attackTarget	
+	Field actionBuffer	'muistipala
+	Field actionProgress
+
+	Field resource
+	Field resourceAmount
 End Type
 
-Type tile
-	Field gfx	'grafiikka
-	Field uid	'uniikki
+Type position
+	Field x As Float
+	Field y As Float
 End Type
+
+Type group
+	Field uid
+	Field speed
+End Type
+
+
+
+
+
+
+
