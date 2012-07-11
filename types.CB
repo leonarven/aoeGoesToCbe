@@ -1,15 +1,15 @@
-// ============== ENTITY
+// ============= ENTITY
 Type entityPrototype
 	Field hp			'maksimi-HP
 	Field name			'nimi
 	Field player		'pelaajan tunniste
-	Field attack		'hyökkäys(voima)
+	Field attack		'hyokkays(voima)
 	Field defence		'haarniska (nuolet)
-	Field armory		'puolutus (lähitaistelu)
-	Field range			'kuinka pitkälle voi hyökkiä
+	Field armory		'puolutus (lahitaistelu)
+	Field range			'kuinka pitkalle voi hyokkia
 	Field abilities		'muisipala - viittaukset actionprototypeseihin
-	Field LOS			'tasatilejä
-	Field animations	'määrää animaatiot
+	Field LOS			'tasatileja
+	Field animations	'maaraa animaatiot
 	Field speed
 End Type
 
@@ -20,18 +20,18 @@ Type entity
 	Field uid		'uniikki tunniste
 	Field hp		'"elkut"
 	Field name		'entiteetin nimi
-	Field state		'mitä tekee atm
-	Field group		'mihin ryhmään kuuluu (uid), jos mihinkään
+	Field state		'mita tekee atm
+	Field group		'mihin ryhmaan kuuluu (uid), jos mihinkaan
 	Field size		'vector2 - koko
 
 
-	Field attackTarget		'kodehahmo, jota kohti hyökkäillään
+	Field attackTarget		'kodehahmo, jota kohti hyokkaillaan
 	Field actionBuffer		'muistipala - lista toimitettavista actioneista
-	Field actionProgress	'kuinka paljon tämänhetkinen edistynyt
+	Field actionProgress	'kuinka paljon tamanhetkinen edistynyt
 
-	// Jos työläinen
-	Field resource			'mitä kerää
-	Field resourceAmount	'paljonko ON kerännyt
+	// Jos tyolainen
+	Field resource			'mita keraa
+	Field resourceAmount	'paljonko ON kerannyt
 End Type
 
 // ============== ACTION
@@ -39,19 +39,19 @@ Type actionPrototype
 	Field duration		'prosessin kesto
 	Field uid			'uniikki tunniste
 	Field description	'esittey
-	Field icon			'ikoni, jota esitellään
+	Field icon			'ikoni, jota esitellaan
 End Type 
 
 // ============== TILE
 Type tilePrototype
-	Field isWalkable	'voiko tässä kävellä
-	Field isSailable	'voiko veneillä päällä
+	Field isWalkable	'voiko tassa kavella
+	Field isSailable	'voiko veneilla paalla
 	Field animation		'tilen grafiikka
 End Type
 
 Type tile
 	Field prototype		
-	Field isBlocked		'onko päällä jotain
+	Field isBlocked		'onko paalla jotain
 End Type
 
 // ============== MUUTA
@@ -61,21 +61,21 @@ Type vector2
 End Type
 
 Type group
-	Field uid			'uniikki tunniste
-	Field speed			'ryhmän hitaimman yksilön nopeus
+	Field uid As Integer	'uniikki tunniste
+	Field speed As Integer	'ryhman hitaimman yksilon nopeus
 End Type
 
 Type animation
 	Field frames		'muistipala kuvan osista
 	Field name			
-	Field direction		'suunta, johon entiteetti ON tässä animaatiossa
+	Field direction		'suunta, johon entiteetti ON tassa animaatiossa
 End Type
 
 Type path // TODO
-	Field position		'vector2 - kohdesijainti
-	Field parentEntity
+	Field position As Integer		'vector2 - kohdesijainti
+	Field parentEntity As Integer	
 End Type
 
-Type player
+'Type player
 	
-End Type
+'End Type = 

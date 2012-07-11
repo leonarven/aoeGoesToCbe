@@ -14,14 +14,14 @@ SCREEN SW, SH
 
 Include "customfunctions.cb"
 Include "types.cb"
-'Include "functions.cb"
+Include "functions.cb"
 
-cbeShowConsole(True)
+'cbeShowConsole(True)
 
 
 Dim map(MW, MH)
 
-'initMap()
+initMap()
 
 Repeat
 	Line 0,0,Rand(255),Rand(255)
@@ -34,7 +34,7 @@ Repeat
 	
 	
 	
-'	drawWorld()
+	drawWorld()
 
 	SetWindow "FPS: " + FPS()
 	DrawScreen
