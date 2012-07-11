@@ -14,19 +14,27 @@ SCREEN SW, SH
 
 Include "customfunctions.cb"
 Include "types.cb"
-Include "functions.cb"
+'Include "functions.cb"
 
 cbeShowConsole(True)
 
+
 Dim map(MW, MH)
 
+'initMap()
+
 Repeat
+	Line 0,0,Rand(255),Rand(255)
 	
 	
 	
+	Text 0,0,map(0,0)
+	Text 0,20,map(1,1)
+	Text 0,40,map(2,2)
 	
 	
-	drawWorld()
+	
+'	drawWorld()
 
 	SetWindow "FPS: " + FPS()
 	DrawScreen

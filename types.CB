@@ -10,7 +10,7 @@ Type entityPrototype
 	Field abilities		'muisipala - viittaukset actionprototypeseihin
 	Field LOS			'tasatilej‰
 	Field animations	'm‰‰r‰‰ animaatiot
-	Field speed As Float
+	Field speed
 End Type
 
 Type entity

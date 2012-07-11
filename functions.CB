@@ -6,12 +6,16 @@ Function y2ty(y)
 	Return y
 End Function
 
+Function initMap()
+	ReDim map(MW, MH)
+	map(0, 0) = 1
+	map(1, 1) = 2
+	map(2, 2) = 3
+
+	Return 0
+End Function
+
 Function drawWorld()
 	
-	
-	
-	
-	
-	
-	
+	Return 0
 End Function
