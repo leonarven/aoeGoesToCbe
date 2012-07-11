@@ -1,7 +1,7 @@
 // ============= ENTITY
 Type entityPrototype
 	Field hp			'maksimi-HP
-	Field name			'nimi
+	Field name As String 'nimi
 	Field player		'pelaajan tunniste
 	Field attack		'hyokkays(voima)
 	Field defence		'haarniska (nuolet)
@@ -19,7 +19,7 @@ Type entity
 	Field position	'vector2 - sijainti
 	Field uid		'uniikki tunniste
 	Field hp		'"elkut"
-	Field name		'entiteetin nimi
+	Field name As String 'entiteetin nimi
 	Field state		'mita tekee atm
 	Field group		'mihin ryhmaan kuuluu (uid), jos mihinkaan
 	Field size		'vector2 - koko
@@ -47,7 +47,7 @@ Type tilePrototype
 	Field isWalkable	'voiko tassa kavella
 	Field isSailable	'voiko veneilla paalla
 	Field animation		'tilen grafiikka
-	Field name			
+	Field name As String			
 	Field uid			
 End Type
 
@@ -69,7 +69,7 @@ End Type
 
 Type animation
 	Field frames		'muistipala kuvan osista
-	Field name			
+	Field name As String			
 	Field direction		'suunta, johon entiteetti ON tassa animaatiossa
 End Type
 
