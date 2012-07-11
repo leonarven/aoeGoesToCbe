@@ -47,6 +47,8 @@ Type tilePrototype
 	Field isWalkable	'voiko tassa kavella
 	Field isSailable	'voiko veneilla paalla
 	Field animation		'tilen grafiikka
+	Field name			
+	Field uid			
 End Type
 
 Type tile

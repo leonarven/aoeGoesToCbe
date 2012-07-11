@@ -8,14 +8,63 @@ End Function
 
 Function initMap()
 	ReDim map(MW, MH)
-	map(0, 0) = 1
-	map(1, 1) = 2
-	map(2, 2) = 3
+End Function
 
-	Return 0
+Function generateMap()
+	For x = 0 To MW
+		For y = 0 To MH
+			prototype = //TODO
+			
+			map(x, y) = newTile(prototype)
+		Next y
+	Next x
+End Function
+
+// TILET >>>>>>>>>>>>>>>
+Global tileCounter
+
+Function loadTilePrototypes()
+	
+	
+	
+	
+	
+	
+EndFunction
+
+Function newTilePrototypes(name, isWalkable, isSailable, animation)
+	tileCounter = tileCounter + 1
+	newTilePrototype.tilePrototype = New(tilePrototype)
+	newTilePrototype\uid = tileCounter
+	newTilePrototype\name = name
+	newTilePrototype\isWalkable = isWalkable
+	newTilePrototype\isSailable = isSailable
+	newTilePrototype\animation = animation
+	
+	Return ConvertToInteger(newTilePrototype)
+EndFunction
+
+Function getTilePrototypes()
+	newTilePrototype.tilePrototype = New(tilePrototype)
+EndFunction
+
+Function newTile(prototype)
+	_newTile.tile = New(tile)
+	_newTile\prototype = prototype
+	_newTile\isBlocked = False
+
+	Return ConvertToInteger(_newTile)
+End Function
+
+// TILET <<<<<<<<<<<<<<<
+
+Function newEntity(prototype)
+	_newEntity.entity = New(entity)
+	_newEntity\prototype = prototype
+
+	Return ConvertToInteger(_newEntity)
 End Function
 
 Function drawWorld()
-	
-	Return 0
+
 End Function
