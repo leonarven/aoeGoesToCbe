@@ -1,56 +1,70 @@
-Function x2tx(x)
-	Return x
+Function x2tx(_x)
+	Return _x
 End Function
 
-Function y2ty(y)
-	Return y
+Function y2ty(_y)
+	Return _y
 End Function
 
-Function initMap()
-	ReDim map(MW, MH)
+
+Function loadFrames(_name, _direction)
+	mem = MakeMEMBlock(256)
+	
+	PokeByte mem, 0, TODO
+	
+	
+	Return mem
+End Function 
+
+// ANIMAATIOT >>>>>>>>>>>>>>>
+
+Function newAnimation(_frames, _name, _direction)
+	_newAnimation.animation	= New(animation)
+	_newAnimation\frames	= _frames
+	_newAnimation\name		= _name
+	_newAnimation\direction	= _direction
+
+	Return ConvertToInteger(_newAnimation)
 End Function
 
-Function generateMap()
-	For x = 0 To MW
-		For y = 0 To MH
-			prototype = //TODO
-			
-			map(x, y) = newTile(prototype)
-		Next y
-	Next x
+Function getAnimation(_animation, _direction)
+
 End Function
 
+// ANIMAATIOT <<<<<<<<<<<<<<<
 // TILET >>>>>>>>>>>>>>>
+Function loadTileAnimations()
+	newAnimation(loadFrames("grass", 0), "grass", 0)
+End Function
+
 Global tileCounter
 
 Function loadTilePrototypes()
-	
-	
-	
-	
-	
-	
+	newTilePrototype("grass", True, False, getAnimation("grass", 0))
 EndFunction
 
-Function newTilePrototypes(name, isWalkable, isSailable, animation)
+Function newTilePrototype(_name, _isWalkable, _isSailable, _animation)
 	tileCounter = tileCounter + 1
-	newTilePrototype.tilePrototype = New(tilePrototype)
-	newTilePrototype\uid = tileCounter
-	newTilePrototype\name = name
-	newTilePrototype\isWalkable = isWalkable
-	newTilePrototype\isSailable = isSailable
-	newTilePrototype\animation = animation
+	_newTilePrototype.tilePrototype = New(tilePrototype)
+	_newTilePrototype\uid = tileCounter
+	_newTilePrototype\name = _name
+	_newTilePrototype\isWalkable = _isWalkable
+	_newTilePrototype\isSailable = _isSailable
+	_newTilePrototype\animation = _animation
 	
-	Return ConvertToInteger(newTilePrototype)
+	Return ConvertToInteger(_newTilePrototype)
 EndFunction
 
-Function getTilePrototypes()
-	newTilePrototype.tilePrototype = New(tilePrototype)
+Function getTilePrototype(_name)
+	For _tilePrototype.tilePrototype = Each tilePrototype
+		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
+	Next _tilePrototype
+	Return False
 EndFunction
 
-Function newTile(prototype)
+Function newTile(_prototype)
 	_newTile.tile = New(tile)
-	_newTile\prototype = prototype
+	_newTile\prototype = _prototype
 	_newTile\isBlocked = False
 
 	Return ConvertToInteger(_newTile)
@@ -58,13 +72,27 @@ End Function
 
 // TILET <<<<<<<<<<<<<<<
 
-Function newEntity(prototype)
+Function newEntity(_prototype)
 	_newEntity.entity = New(entity)
-	_newEntity\prototype = prototype
+	_newEntity\prototype = _prototype
 
 	Return ConvertToInteger(_newEntity)
 End Function
 
 Function drawWorld()
+End Function
 
+Function generateMap()
+	Print "aoe: generateMap()" //DEBUG
+	For x = 0 To MW
+		For y = 0 To MH
+			prototype = getTilePrototype("grass")
+			map(x, y) = newTile(prototype)
+		Next y
+	Next x
+End Function
+
+Function initMap()
+	Print "aoe: iniMap()" //DEBUG
+	ReDim map(MW, MH)
 End Function
