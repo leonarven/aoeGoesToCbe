@@ -1,17 +1,17 @@
-Function x2tx(_x)
+Function xTotilex(_x)
 	Return _x
 End Function
 
-Function y2ty(_y)
+Function yTotiley(_y)
 	Return _y
 End Function
 
-Function tx2x(_tx)
-	Return _tx
+Function tilexToX(_tx, _ty)
+	Return CamX + (_tx - _ty) * TW2
 End Function
 
-Function ty2y(_ty)
-	Return _ty
+Function tileyToY(_tx, _ty)
+	Return CamY + (_tx + _ty) * TH2
 End Function
 
 Function loadFrames(_name$, _direction)
@@ -22,7 +22,7 @@ Function loadFrames(_name$, _direction)
 
 	dat = OpenToRead("media/tiles/" + _name + ".txt")
 	img = LoadImage("media/tiles/" + _name + ".png")
-'	MaskImage img, 255, 0, 255
+	MaskImage img, 255, 0, 255
 
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
@@ -111,17 +111,25 @@ Function drawWorld()
 		For y = 0 To MS-Abs(MS-z)-1 //TODO: use While here
 			nx = Max(0,z-MS)+y
 			ny = Min(MS,z)-y
-			
 			'Print "aoe: drawWorld - ("+z+", "+y+") -> ("+nx+","+ny+")"
+			tx = tilexToX(nx, ny)
+			ty = tileyToY(nx, ny)
 
-			_tile.tile = ConvertToType(map(nx, ny))
-			_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
-			_anim.animation = ConvertToType(_tilePrototype\anim)
+			If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < SW) Then
+				_tile.tile = ConvertToType(map(nx, ny))
+				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
+				_anim.animation = ConvertToType(_tilePrototype\anim)
 
-			DrawImage PeekInt(_anim\frames, 3), 0, 0
+				DrawImage PeekInt(_anim\frames, 3), tx, ty
+			EndIf
 		Next y
 	Next z
 End Function
+
+Function controls()
+	CamX = CamX - CamSpeed * (KeyDown(32) - KeyDown(30))
+	CamY = CamY - CamSpeed * (KeyDown(31) - KeyDown(17))
+EndFunction
 
 Function generateMap()
 	Print "aoe: generateMap()" //DEBUG
@@ -136,4 +144,9 @@ End Function
 Function initMap()
 	Print "aoe: iniMap()" //DEBUG
 	ReDim map(MS, MS)
+
+	CamX = 0
+	CamY = 0
+
+	
 End Function

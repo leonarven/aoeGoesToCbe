@@ -1,6 +1,7 @@
 DefaultMask OFF
 
-Global SW,SH 'screen size
+Global SW, SH 'screen size
+Global CamX, CamY, CamSpeed 'screen size
 Global TS, TW, TH, TW2, TH2 'tile size
 Global MS 'map size
 
@@ -8,14 +9,12 @@ SW = 640 'screen width
 SH = 480 'screen height
 
 //TS = 16 'tile size
-
-TW = 128 'tile size
-TH = 64 'tile size
-
-TW2 = TW/2
-TH2 = TH/2
+TW = 128 : TW2 = TW/2 'tile size
+TH = 64  : TH2 = TH/2 'tile size
 
 MS = 32
+
+CamSpeed = 20
 
 SCREEN SW, SH
 
@@ -24,8 +23,6 @@ Include "types.cb"
 Include "functions.cb"
 
 cbeShowConsole(True)
-
-
 Dim map(MS, MS)
 
 initMap()
@@ -36,6 +33,7 @@ generateMap()
 Repeat
 	Line 0,0,Rand(255),Rand(255)
 	
+	controls()
 	
 	drawWorld()
 	SetWindow "FPS: " + FPS()
