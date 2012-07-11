@@ -26,8 +26,9 @@ cbeShowConsole(True)
 Dim map(MS, MS)
 
 initMap()
-loadTileAnimations()
-loadTilePrototypes()
+loadAnimations()
+loadPrototypes()
+
 generateMap()
 
 Repeat

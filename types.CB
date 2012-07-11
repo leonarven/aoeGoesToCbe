@@ -1,5 +1,7 @@
 // ============= ENTITY
 Type entityPrototype
+	Field uid			
+
 	Field hp			'maksimi-HP
 	Field name As String 'nimi
 	Field player		'pelaajan tunniste
@@ -9,8 +11,9 @@ Type entityPrototype
 	Field range			'kuinka pitkalle voi hyokkia
 	Field abilities		'muisipala - viittaukset actionprototypeseihin
 	Field LOS			'tasatileja
-	Field animations	'maaraa animaatiot
+	Field anim			'maaraa animaatiot
 	Field speed
+	Field size		'vector2 - koko
 End Type
 
 Type entity
@@ -19,10 +22,9 @@ Type entity
 	Field position	'vector2 - sijainti
 	Field uid		'uniikki tunniste
 	Field hp		'"elkut"
-	Field name As String 'entiteetin nimi
 	Field state		'mita tekee atm
 	Field group		'mihin ryhmaan kuuluu (uid), jos mihinkaan
-	Field size		'vector2 - koko
+	Field direction
 
 
 	Field attackTarget		'kodehahmo, jota kohti hyokkaillaan
@@ -54,6 +56,7 @@ End Type
 Type tile
 	Field prototype		
 	Field isBlocked		'onko paalla jotain
+	Field entitiesAbove
 End Type
 
 // ============== MUUTA
