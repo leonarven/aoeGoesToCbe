@@ -37,6 +37,8 @@ Type entity
 	Field name		
 	Field state		
 	Field group		'
+	Field size		'vector2 , jossa koko
+
 
 	Field attackTarget	
 	Field actionBuffer	'muistipala
@@ -46,7 +48,7 @@ Type entity
 	Field resourceAmount
 End Type
 
-Type position
+Type vector2
 	Field x As Float
 	Field y As Float
 End Type
@@ -56,9 +58,17 @@ Type group
 	Field speed
 End Type
 
+Type tilePrototype
+	Field isWalkable
+	Field isSailable
+	Field animation
+End Type
 
+Type tile
+	Field prototype
+	Field isBlocked
+End Type
 
-
-
-
-
+Type player
+	
+End Type
