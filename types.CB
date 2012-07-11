@@ -1,72 +1,79 @@
+// ============== ENTITY
 Type entityPrototype
-	Field hp		'maksimi-HP
-	Field name		'nimi
-	Field player	'pelaajan tunniste
-	Field attack	
-	Field defence	
-	Field abilities	'muisipala - viittaukset actionprototypeseihin
-	Field LOS		
-	Field animations 'm‰‰r‰‰ animaatiot
+	Field hp			'maksimi-HP
+	Field name			'nimi
+	Field player		'pelaajan tunniste
+	Field attack		'hyˆkk‰ys(voima)
+	Field defence		'haarniska (nuolet)
+	Field armory		'puolutus (l‰hitaistelu)
+	Field range			'kuinka pitk‰lle voi hyˆkki‰
+	Field abilities		'muisipala - viittaukset actionprototypeseihin
+	Field LOS			'tasatilej‰
+	Field animations	'm‰‰r‰‰ animaatiot
 	Field speed As Float
 End Type
-
-Type animation
-	Field frames	'muistipala kuvan osista
-	Field name
-	Field direction
-End Type
-
-Type path // TODO
-	Field position
-	Field parentEntity
-End Type
-
-Type actionPrototype
-	Field duration
-	Field uid
-	Field description
-	Field icon
-End Type 
 
 Type entity
 	Field prototype	'entiteetin prototyyppi
 
-	Field position			'x
-	Field uid		'uniikki
-	Field hp		'hp
-	Field name		
-	Field state		
-	Field group		'
-	Field size		'vector2 , jossa koko
+	Field position	'vector2 - sijainti
+	Field uid		'uniikki tunniste
+	Field hp		'"elkut"
+	Field name		'entiteetin nimi
+	Field state		'mit‰ tekee atm
+	Field group		'mihin ryhm‰‰n kuuluu (uid), jos mihink‰‰n
+	Field size		'vector2 - koko
 
 
-	Field attackTarget	
-	Field actionBuffer	'muistipala
-	Field actionProgress
+	Field attackTarget		'kodehahmo, jota kohti hyˆkk‰ill‰‰n
+	Field actionBuffer		'muistipala - lista toimitettavista actioneista
+	Field actionProgress	'kuinka paljon t‰m‰nhetkinen edistynyt
 
-	Field resource
-	Field resourceAmount
+	// Jos tyˆl‰inen
+	Field resource			'mit‰ ker‰‰
+	Field resourceAmount	'paljonko ON ker‰nnyt
 End Type
 
+// ============== ACTION
+Type actionPrototype
+	Field duration		'prosessin kesto
+	Field uid			'uniikki tunniste
+	Field description	'esittey
+	Field icon			'ikoni, jota esitell‰‰n
+End Type 
+
+// ============== TILE
+Type tilePrototype
+	Field isWalkable	'voiko t‰ss‰ k‰vell‰
+	Field isSailable	'voiko veneill‰ p‰‰ll‰
+	Field animation		'tilen grafiikka
+End Type
+
+Type tile
+	Field prototype		
+	Field isBlocked		'onko p‰‰ll‰ jotain
+End Type
+
+// ============== MUUTA
 Type vector2
 	Field x As Float
 	Field y As Float
 End Type
 
 Type group
-	Field uid
-	Field speed
+	Field uid			'uniikki tunniste
+	Field speed			'ryhm‰n hitaimman yksilˆn nopeus
 End Type
 
-Type tilePrototype
-	Field isWalkable
-	Field isSailable
-	Field animation
+Type animation
+	Field frames		'muistipala kuvan osista
+	Field name			
+	Field direction		'suunta, johon entiteetti ON t‰ss‰ animaatiossa
 End Type
 
-Type tile
-	Field prototype
-	Field isBlocked
+Type path // TODO
+	Field position		'vector2 - kohdesijainti
+	Field parentEntity
 End Type
 
 Type player
