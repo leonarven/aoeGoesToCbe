@@ -1,3 +1,7 @@
+Function debug(txt$)
+	Print "aoe("+ GameTime +"): "+txt
+EndFunction
+
 Function newPosition(_x#, _y#)
 	_position.vector2 = New(vector2)
 	_position\x = _x
@@ -16,7 +20,7 @@ Function positionTotileY#(position)
 EndFunction
 
 Function loadFrames(_name$, _direction)
-	Print "aoe: loadFrames("+_name+", "+_direction+", "+mask+")" //DEBUG
+	debug(">>> loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
 	mem = MakeMEMBlock(5)
 
 	dat = OpenToRead(mediadir + _name + "/Image.dat")
@@ -27,20 +31,24 @@ Function loadFrames(_name$, _direction)
 	mask = Int(ReadLine(dat))
 	wimg = (width+height)*TW2
 
+
 	if (mask) Then MaskImage img, 255, 0, 255
 
 	framesCount = Int(ImageWidth(img)/wimg)
+
+	debug("    loadFrames("+_name+", "+_direction+", "+mask+") - New frame ("+width+", "+height+", "+framesCount+", "+wimg+")") //DEBUG
 	
 	PokeByte mem, 0, framesCount
 	PokeInt  mem, 1, img
 	
+	debug("<<< loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
 	Return mem 'muistipala, jotta voi palauttaa useita arvoja
 End Function 
 
 // ANIMAATIOT >>>>>>>>>>>>>>>
 
 Function makeNewAnimation(_name$)
-	Print "aoe: makeNewAnimation("+_name+")" //DEBUG
+	debug(">>> makeNewAnimation("+_name+")") //DEBUG
 	dat = OpenToRead(mediadir + _name + "/Image.dat")
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
@@ -48,16 +56,18 @@ Function makeNewAnimation(_name$)
 	_directions$ = ReadLine(dat)
 	_speed = Int(ReadLine(dat))
 	directions = CountWords(_directions)
+	debug("    makeNewAnimation("+_name+") - found "+directions+" directions") //DEBUG
 	For i = 0 To directions 
 		_newDirection = Int(GetWord(_directions, i))
 		newAnimation(loadFrames(_name, _newDirection), _name, _newDirection, _speed)
 	Next i
 	CloseFile(dat)
+	debug("<<< makeNewAnimation("+_name+")") //DEBUG
 EndFunction
 
 Function newAnimation(_frames, _name$, _direction, _speed)
 	'_frames muistipala, jotta voi palauttaa useita arvoja
-	Print "aoe: newAnimation("+_frames+", "+_name+", "+_direction+")" //DEBUG
+	debug(">>> newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
 	_newAnimation.animation		= New(animation)
 	_newAnimation\framesImg		= PeekInt(_frames,1)
 	_newAnimation\framesCount	= PeekByte(_frames,0)
@@ -65,8 +75,7 @@ Function newAnimation(_frames, _name$, _direction, _speed)
 	_newAnimation\speed			= _speed
 	_newAnimation\direction		= _direction
 	DeleteMEMBlock _frames
-
-
+	debug("<<< newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
 	Return ConvertToInteger(_newAnimation)
 End Function
 
@@ -82,15 +91,16 @@ Function getAnimation(_name$, _direction)
 			EndIf
 		EndIf
 	Next _animation
-	If (ret = False) then Print "aoe: ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found" //DEBUG
+	If (ret = False) then debug("ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found") //DEBUG
 	Return ret
 End Function
 
 // ANIMAATIOT <<<<<<<<<<<<<<<
 
 Function loadEverything()
-	Print "aoe: loadEverything()" //DEBUG
+	debug(">>> loadEverything()") //DEBUG
 
+	debug("    loadEverything() - start loading tiles") //DEBUG
 	ChDir "media/tiles"
 	StartSearch
 	Repeat 
@@ -104,12 +114,12 @@ Function loadEverything()
 				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 1))
 				CloseFile(f)
 			Else
-				Print "aoe: ERROR - loadEverything() failed - could Not load tiles/"+file //DEBUG
+				debug("aoe: ERROR - loadEverything() failed - could Not load tiles/"+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
-
+	debug("    loadEverything() - start loading units") //DEBUG
 	ChDir "../units"
 	StartSearch
 	Repeat
@@ -118,35 +128,38 @@ Function loadEverything()
 		If Not (file = "." Or file = "..") Then 
 			If (FileExists(unitsdir + file+"/Image.dat") And FileExists(unitsdir+file+"/Image.png") And FileExists(unitsdir + file + "/Prototype.dat")) Then
 				makeNewAnimation("units/"+file)
-
 				f = OpenToRead(unitsdir + file + "/Prototype.dat")
+
 				newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
-				Print "aoe: ERROR - loadEverything() failed - could Not load units/"+file //DEBUG
+				debug("ERROR - loadEverything() failed - could Not load units/"+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
+	debug("    loadEverything() - start loading buildings") //DEBUG
 	ChDir "../buildings"
 	StartSearch
 	Repeat
 		file$ = FindFile()
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
-			If (FileExists(unitsdir + file+"/Image.dat") And FileExists(unitsdir+file+"/Image.png") And FileExists(unitsdir + file + "/Prototype.dat")) Then
-				makeNewAnimation("buildings/"+file)
+			If (FileExists(buildingsdir + file+"/Image.dat") And FileExists(buildingsdir + file + "/Image.png") And FileExists(buildingsdir + file + "/Prototype.dat")) Then
+				makeNewAnimation("buildings/" + file)
 
-				f = OpenToRead(unitsdir + file + "/Prototype.dat")
-				newEntityPrototype(Int(ReadLine(f)), "buildings/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+				f = OpenToRead(buildingsdir + file + "/Prototype.dat")
+
+				newEntityPrototype(Int(ReadLine(f)), "buildings/" + file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("buildings/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
-				Print "aoe: ERROR - loadEverything() failed - could Not load buildings/"+file //DEBUG
+				debug("aoe: ERROR - loadEverything() failed - could Not load buildings/"+file+" from "+buildingsdir+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
 	ChDir "../.."
+	debug("<<< loadEverything()") //DEBUG
 EndFunction
 
 Function drawWorld()
@@ -181,6 +194,7 @@ Function drawWorld()
 			_position.vector2 = ConvertToType(_entity\position)
 			img = _anim\framesImg
 
+			'ALAREUNASTA PIIRTÄÄÄÄÄÄÄ
 			DrawImageBox img, tx, ty, ImageWidth(img) / _anim\framesCount * _entity\frame, 0, TW, ImageHeight(img)
 			Color 255,255,255
 			Text tx, ty, Str(mx)+","+Str(my)+":"+_entity\frame+","+_anim\framesCount+" - "+_anim\speed
@@ -249,8 +263,8 @@ Function drawGUI()
 EndFunction
 
 Function generateMap()
-	Print "aoe: generateMap()" //DEBUG
-	newEntity(getEntityPrototype("units/vieteri"), newPosition(0, 0))
+	debug(">>> generateMap()") //DEBUG
+	newEntity(getEntityPrototype("buildings/tower"), newPosition(0, 0))
 	For x = 0 To MS
 		For y = 0 To MS
 			prototype = getTilePrototype("tiles/grass")
@@ -261,12 +275,13 @@ Function generateMap()
 					newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
 				Case 2
 					newEntity(getEntityPrototype("units/vieteri"), newPosition(x, y))
-'				Case 3
-'					newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
+				Case 3
+					newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
 				Default
 			End Select
 		Next y
 	Next x
+	debug("<<< generateMap()") //DEBUG
 End Function
 
 Function updateAI()
@@ -287,9 +302,10 @@ Function updateAI()
 EndFunction
 
 Function initMap()
-	Print "aoe: iniMap()" //DEBUG
+	debug(">>> iniMap()") //DEBUG
 	ReDim map(MS, MS)
 
 	CamX = 0
 	CamY = 0	
+	debug("<<< iniMap()") //DEBUG
 End Function

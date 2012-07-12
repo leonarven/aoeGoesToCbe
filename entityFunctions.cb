@@ -1,8 +1,8 @@
 Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _range, _abilities, _LOS, _anim, _speed, _size)
+	debug(">>> newEntityPrototype()") //DEBUG
+	
 	entityPrototypeCounter = entityPrototypeCounter + 1
-
 	_newEntityPrototype.entityPrototype = New(entityPrototype)
-
 	_newEntityPrototype\uid = entityPrototypeCounter
 	_newEntityPrototype\hp = _hp
 	_newEntityPrototype\name = _name
@@ -17,6 +17,7 @@ Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _r
 	_newEntityPrototype\speed = _speed
 	_newEntityPrototype\size = _size
 	
+	debug("<<< newEntityPrototype()") //DEBUG
 	Return ConvertToInteger(_newEntityPrototype)
 EndFunction
 
@@ -29,6 +30,8 @@ Function getEntityPrototype(_name$)
 EndFunction
 
 Function newEntity(_prototype, _position)
+'	debug(">>> newEntity("+_prototype+","+_position+")") //DEBUG
+
 	entityCounter = entityCounter + 1
 
 	_prototypeType.entityPrototype = ConvertToType(_prototype)
@@ -51,6 +54,7 @@ Function newEntity(_prototype, _position)
 	_newEntity\resource = 0
 	_newEntity\resourceAmount = 0
 
+'	debug("<<< newEntity("+_prototype+","+_position+")") //DEBUG
 	Return ConvertToInteger(_newEntity)
 End Function
 

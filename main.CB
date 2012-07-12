@@ -6,6 +6,7 @@
 '			piirto(rendaus) vain kun pakko
 '			törmäystarkistus
 '				...vain lähitileiltä
+'			
 
 DefaultMask OFF
 
@@ -18,7 +19,7 @@ Global GameTime
 Global CamX, CamY, CamSpeed
 Global PlayerSelectedGroup, PlayerSelectStartX, PlayerSelectStartY
 Global PanelHeight
-Global rootdir$, mediadir$, tiledir$, unitsdir$
+Global rootdir$, mediadir$, tiledir$, unitsdir$, buildingsdir$
 
 Global entityCounter
 Global entityPrototypeCounter
@@ -31,6 +32,7 @@ rootdir = CurrentDir()
 mediadir = rootdir + "media/"
 tiledir = mediadir + "tiles/"
 unitsdir = mediadir + "units/"
+buildingdir = mediadir + "buildings/"
 
 f = OpenToRead("game.dat")
 
