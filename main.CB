@@ -1,9 +1,21 @@
+' TODO
+'DONE(?)	entiteetit ja tilet piirtymään pohjasalmiakin keskipisteen mukaan
+'			tilet tietoisiksi niillä olevista entiteeteistä
+'				entiteettien piirto vain näkyviltä tileiltä
+'			tiedostoista prototyypit ja animaatiot ja muutkin härpäkkeet
+'			piirto(rendaus) vain kun pakko
+'			törmäystarkistus
+'				...vain lähitileiltä
+
 DefaultMask OFF
 
 Global SW, SH 'screen size
-Global CamX, CamY, CamSpeed 'screen size
 Global TS, TW, TH, TW2, TH2 'tile size
 Global MS 'map size
+
+Global CamX, CamY, CamSpeed
+Global PlayerSelect
+Global PanelHeight
 
 SW = 640 'screen width
 SH = 480 'screen height
@@ -15,6 +27,7 @@ TH = 64  : TH2 = TH/2 'tile size
 MS = 32
 
 CamSpeed = 20
+PanelHeight = 120
 
 SCREEN SW, SH
 
@@ -33,10 +46,10 @@ generateMap()
 
 Repeat
 	Line 0,0,Rand(255),Rand(255)
-	
 	controls()
-	
 	drawWorld()
+	drawGUI()
 	SetWindow "FPS: " + FPS()
+
 	DrawScreen
 Forever
