@@ -1,19 +1,3 @@
-Function xTotilex(_x)
-	Return _x
-End Function
-
-Function yTotiley(_y)
-	Return _y
-End Function
-
-Function tilexToX(_tx, _ty)
-	Return CamX + (_tx - _ty) * TW2
-End Function
-
-Function tileyToY(_tx, _ty)
-	Return CamY + (_tx + _ty) * TH2
-End Function
-
 Function newPosition(_x#, _y#)
 	_position.vector2 = New(vector2)
 	_position\x = _x
@@ -32,10 +16,8 @@ Function positionTotileY#(position)
 EndFunction
 
 Function loadFrames(_name$, _direction, mask)
-	mem = MakeMEMBlock(8)
-
-	If (Not FileExists("media/" + _name + "/Image.dat")) Then MakeError "file media/" + _name + "/Image.dat Not exists"
-	If (Not FileExists("media/" + _name + "/Image.png")) Then MakeError "file media/" + _name + "/Image.png Not exists"
+	Print "aoe: loadFrames("+_name+", "+_direction+", "+mask+")" //DEBUG
+	mem = MakeMEMBlock(9)
 
 	dat = OpenToRead("media/" + _name + "/Image.dat")
 	img = LoadImage("media/" + _name + "/Image.png")
@@ -49,19 +31,18 @@ Function loadFrames(_name$, _direction, mask)
 	framesCount = Int(ImageWidth(img)/wimg)
 	
 	PokeByte mem, 0, framesCount
-	PokeInt  mem, 3, img
+	PokeByte mem, 1, width
+	PokeByte mem, 2, height
+	PokeByte mem, 3, wimg
+	PokeInt  mem, 4, img
 	
 	Return mem
 End Function 
 
-Function loadAnimations()
-	newAnimation(loadFrames("tiles/grass", 0, 0), "tiles/grass", 0)
-	newAnimation(loadFrames("units/soldier", 0, 1), "units/soldier", 0)
-End Function
-
 // ANIMAATIOT >>>>>>>>>>>>>>>
 
 Function newAnimation(_frames, _name$, _direction)
+	Print "aoe: newAnimation("+_frames+", "+_name+", "+_direction+")" //DEBUG
 	_newAnimation.animation	= New(animation)
 	_newAnimation\frames	= _frames
 	_newAnimation\name		= _name
@@ -80,109 +61,25 @@ Function getAnimation(_name$, _direction)
 End Function
 
 // ANIMAATIOT <<<<<<<<<<<<<<<
-// TILET >>>>>>>>>>>>>>>
 
-Global tileCounter
-Global tilePrototypeCounter
+Function loadEverything()
+	Print "aoe: loadEverything()" //DEBUG
 
-Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
-	tilePrototypeCounter = tilePrototypeCounter + 1
-	_newTilePrototype.tilePrototype = New(tilePrototype)
-	_newTilePrototype\uid = tilePrototypeCounter
-	_newTilePrototype\name = _name
-	_newTilePrototype\isWalkable = _isWalkable
-	_newTilePrototype\isSailable = _isSailable
-	_newTilePrototype\anim = _animation
-	
-	Return ConvertToInteger(_newTilePrototype)
-EndFunction
+	newAnimation(loadFrames("tiles/grass", 0, 0), "tiles/grass", 0)
+	newAnimation(loadFrames("units/soldier", 0, 1), "units/soldier", 0)
 
-Function getTilePrototype(_name$)
-	For _tilePrototype.tilePrototype = Each tilePrototype
-		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
-	Next _tilePrototype
-	MakeError "aoe: ERROR - getTilePrototype() failed" //DEBUG
-	Return False
-EndFunction
-
-Function newTile(_prototype)
-	tileCounter = tileCounter + 1
-	_newTile.tile = New(tile)
-	_newTile\prototype = _prototype
-	_newTile\isBlocked = False
-	_newtile\entitiesAbove = MakeMEMBlock(81)
-	
-	Return ConvertToInteger(_newTile)
-End Function
-
-// TILET <<<<<<<<<<<<<<<
-
-Global entityCounter
-Global entityPrototypeCounter
-
-Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _range, _abilities, _LOS, _anim, _speed, _size)
-	entityPrototypeCounter = entityPrototypeCounter + 1
-
-	_newEntityPrototype.entityPrototype = New(entityPrototype)
-
-	_newEntityPrototype\uid = entityPrototypeCounter
-	_newEntityPrototype\hp = _hp
-	_newEntityPrototype\name = _name
-	_newEntityPrototype\player = _player
-	_newEntityPrototype\attack = _attack
-	_newEntityPrototype\defence = _defence
-	_newEntityPrototype\armory = _armory
-	_newEntityPrototype\range = _range
-	_newEntityPrototype\abilities = _abilities
-	_newEntityPrototype\LOS = _LOS
-	_newEntityPrototype\anim = _anim
-	_newEntityPrototype\speed = _speed
-	_newEntityPrototype\size = _size
-	
-	Return ConvertToInteger(_newEntityPrototype)
-EndFunction
-
-Function getEntityPrototype(_name$)
-	For _entityPrototype.entityPrototype = Each entityPrototype
-		If (_entityPrototype\name = _name) Then Return ConvertToInteger(_entityPrototype)
-	Next _entityPrototype
-	MakeError "aoe: ERROR - getEntityPrototype() failed" //DEBUG
-	Return False
-EndFunction
-
-Function newEntity(_prototype, _position)
-	entityCounter = entityCounter + 1
-
-	_prototypeType.entityPrototype = ConvertToType(_prototype)
-
-	_newEntity.entity = New(entity)
-	_newEntity\prototype = _prototype
-	_newEntity\position = _position
-	_newEntity\uid = entityCounter
-	_newEntity\hp = _prototypeType\hp
-	_newEntity\state = 0
-	_newEntity\group = 0
-	_newEntity\direction = 0
-	_newEntity\attackTarget = 0
-	_newEntity\actionBuffer = MakeMEMBlock(11 * 4)
-	_newEntity\actionProgress = 0
-
-	_newEntity\resource = 0
-	_newEntity\resourceAmount = 0
-
-	Return ConvertToInteger(_newEntity)
-End Function
-
-Function loadPrototypes()
-	Print "aoe: loadPrototypes()" //DEBUG
 	ChDir "media/tiles"
 	StartSearch
 	Repeat
 		file$ = FindFile()
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
-			f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
-			newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 0))
+			If (FileExists(CurrentDir()+file+"/Image.dat") And FileExists(CurrentDir()+file+"/Image.png") And FileExists(CurrentDir()+file+"/Prototype.dat")) Then
+				f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 0))
+			Else
+				Print "aoe: ERROR - loadEverything() failed - could Not load tiles/"+file //DEBUG
+			EndIf
 		EndIf
 	Forever
 	EndSearch
@@ -193,8 +90,12 @@ Function loadPrototypes()
 		file$ = FindFile()
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
-			f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
-			newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+			If (FileExists(CurrentDir()+file+"/Image.dat") And FileExists(CurrentDir()+file+"/Image.png") And FileExists(CurrentDir()+file+"/Prototype.dat")) Then
+				f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+				newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+			Else
+				Print "aoe: ERROR - loadEverything() failed - could Not load units/"+file //DEBUG
+			EndIf
 		EndIf
 	Forever
 	EndSearch
@@ -215,7 +116,7 @@ Function drawWorld()
 				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
 				_anim.animation = ConvertToType(_tilePrototype\anim)
 
-				DrawImage PeekInt(_anim\frames, 3), tx, ty
+				DrawImage PeekInt(_anim\frames, 4), tx, ty
 			EndIf
 		Next y
 	Next z
@@ -231,7 +132,7 @@ Function drawWorld()
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
 			_anim.animation = ConvertToType(_entityPrototype\anim)
 
-			DrawImage PeekInt(_anim\frames, 3), tx, ty
+			DrawImage PeekInt(_anim\frames, 4), tx, ty
 			Color 255,255,255
 			Text tx, ty, Str(mx)+","+Str(my)
 '		EndIf
@@ -257,7 +158,7 @@ Function controls()
 
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
 			_anim.animation = ConvertToType(_entityPrototype\anim)
-			img = PeekInt(_anim\frames, 3)
+			img = PeekInt(_anim\frames, 4)
 
 			tw = ImageWidth(img)/PeekByte(_anim\frames, 0)
 			th = ImageHeight(img)
@@ -288,7 +189,7 @@ Function drawGUI()
 		Color 255,255,255
 		Text 100, h + 10, psPrototype\name
 		Text 200, h + 10, "("+psPosition\x+","+psPosition\y+")"
-		Text 100, h + 20, ps\hp+"/"+psPrototype\hp
+		Text 100, h + 20, "hp: " + ps\hp+"/"+psPrototype\hp
 		Text 100, h + 30, "("+psPrototype\attack+", "+psPrototype\defence+", "+psPrototype\armory+", "+psPrototype\range+")"
 		Text 100, h + 50, "state: " + ps\state
 	EndIf

@@ -17,6 +17,11 @@ Global CamX, CamY, CamSpeed
 Global PlayerSelect
 Global PanelHeight
 
+Global entityCounter
+Global entityPrototypeCounter
+Global tileCounter
+Global tilePrototypeCounter
+
 SW = 640 'screen width
 SH = 480 'screen height
 
@@ -33,15 +38,15 @@ SCREEN SW, SH
 
 Include "customfunctions.cb"
 Include "types.cb"
-Include "functions.cb"
+Include "commonFunctions.cb"
+Include "tileFunctions.cb"
+Include "entityFunctions.cb"
 
 cbeShowConsole(True)
 Dim map(MS, MS)
 
 initMap()
-loadAnimations()
-loadPrototypes()
-
+loadEverything()
 generateMap()
 
 Repeat

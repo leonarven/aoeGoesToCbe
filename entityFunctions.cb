@@ -1,0 +1,52 @@
+Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _range, _abilities, _LOS, _anim, _speed, _size)
+	entityPrototypeCounter = entityPrototypeCounter + 1
+
+	_newEntityPrototype.entityPrototype = New(entityPrototype)
+
+	_newEntityPrototype\uid = entityPrototypeCounter
+	_newEntityPrototype\hp = _hp
+	_newEntityPrototype\name = _name
+	_newEntityPrototype\player = _player
+	_newEntityPrototype\attack = _attack
+	_newEntityPrototype\defence = _defence
+	_newEntityPrototype\armory = _armory
+	_newEntityPrototype\range = _range
+	_newEntityPrototype\abilities = _abilities
+	_newEntityPrototype\LOS = _LOS
+	_newEntityPrototype\anim = _anim
+	_newEntityPrototype\speed = _speed
+	_newEntityPrototype\size = _size
+	
+	Return ConvertToInteger(_newEntityPrototype)
+EndFunction
+
+Function getEntityPrototype(_name$)
+	For _entityPrototype.entityPrototype = Each entityPrototype
+		If (_entityPrototype\name = _name) Then Return ConvertToInteger(_entityPrototype)
+	Next _entityPrototype
+	MakeError "aoe: ERROR - getEntityPrototype() failed" //DEBUG
+	Return False
+EndFunction
+
+Function newEntity(_prototype, _position)
+	entityCounter = entityCounter + 1
+
+	_prototypeType.entityPrototype = ConvertToType(_prototype)
+
+	_newEntity.entity = New(entity)
+	_newEntity\prototype = _prototype
+	_newEntity\position = _position
+	_newEntity\uid = entityCounter
+	_newEntity\hp = _prototypeType\hp
+	_newEntity\state = 0
+	_newEntity\group = 0
+	_newEntity\direction = 0
+	_newEntity\attackTarget = 0
+	_newEntity\actionBuffer = MakeMEMBlock(11 * 4)
+	_newEntity\actionProgress = 0
+
+	_newEntity\resource = 0
+	_newEntity\resourceAmount = 0
+
+	Return ConvertToInteger(_newEntity)
+End Function

@@ -1,0 +1,46 @@
+Function xTotilex(_x)
+	Return _x
+End Function
+
+Function yTotiley(_y)
+	Return _y
+End Function
+
+Function tilexToX(_tx, _ty)
+	Return CamX + (_tx - _ty) * TW2
+End Function
+
+Function tileyToY(_tx, _ty)
+	Return CamY + (_tx + _ty) * TH2
+End Function
+
+Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
+	Print "aoe: newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")" //DEBUG
+	tilePrototypeCounter = tilePrototypeCounter + 1
+	_newTilePrototype.tilePrototype = New(tilePrototype)
+	_newTilePrototype\uid = tilePrototypeCounter
+	_newTilePrototype\name = _name
+	_newTilePrototype\isWalkable = _isWalkable
+	_newTilePrototype\isSailable = _isSailable
+	_newTilePrototype\anim = _animation
+	
+	Return ConvertToInteger(_newTilePrototype)
+EndFunction
+
+Function getTilePrototype(_name$)
+	For _tilePrototype.tilePrototype = Each tilePrototype
+		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
+	Next _tilePrototype
+	MakeError "aoe: ERROR - getTilePrototype() failed" //DEBUG
+	Return False
+EndFunction
+
+Function newTile(_prototype)
+	tileCounter = tileCounter + 1
+	_newTile.tile = New(tile)
+	_newTile\prototype = _prototype
+	_newTile\isBlocked = False
+	_newtile\entitiesAbove = MakeMEMBlock(81)
+	
+	Return ConvertToInteger(_newTile)
+End Function
