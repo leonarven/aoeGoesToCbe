@@ -24,7 +24,7 @@ Function getEntityPrototype(_name$)
 	For _entityPrototype.entityPrototype = Each entityPrototype
 		If (_entityPrototype\name = _name) Then Return ConvertToInteger(_entityPrototype)
 	Next _entityPrototype
-	MakeError "aoe: ERROR - getEntityPrototype() failed" //DEBUG
+	Print "aoe: ERROR - getEntityPrototype() failed - entity "+_name+" Not found" //DEBUG
 	Return False
 EndFunction
 

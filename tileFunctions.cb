@@ -16,6 +16,7 @@ End Function
 
 Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
 	Print "aoe: newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")" //DEBUG
+
 	tilePrototypeCounter = tilePrototypeCounter + 1
 	_newTilePrototype.tilePrototype = New(tilePrototype)
 	_newTilePrototype\uid = tilePrototypeCounter
@@ -31,7 +32,7 @@ Function getTilePrototype(_name$)
 	For _tilePrototype.tilePrototype = Each tilePrototype
 		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
 	Next _tilePrototype
-	MakeError "aoe: ERROR - getTilePrototype() failed" //DEBUG
+	Print "aoe: ERROR - getTileprototype() failed - tile "+_name+" Not found" //DEBUG
 	Return False
 EndFunction
 

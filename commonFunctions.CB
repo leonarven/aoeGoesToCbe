@@ -15,15 +15,16 @@ Function positionTotileY#(position)
 	Return p\y
 EndFunction
 
-Function loadFrames(_name$, _direction, mask)
+Function loadFrames(_name$, _direction)
 	Print "aoe: loadFrames("+_name+", "+_direction+", "+mask+")" //DEBUG
 	mem = MakeMEMBlock(9)
 
-	dat = OpenToRead("media/" + _name + "/Image.dat")
-	img = LoadImage("media/" + _name + "/Image.png")
+	dat = OpenToRead(mediadir + _name + "/Image.dat")
+	img = LoadImage(mediadir + _name + "/Image.png")
 
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
+	mask = Int(ReadLine(dat))
 	wimg = (width+height)*TW2
 
 	if (mask) Then MaskImage img, 255, 0, 255
@@ -41,6 +42,21 @@ End Function
 
 // ANIMAATIOT >>>>>>>>>>>>>>>
 
+Function makeNewAnimation(_name$)
+	Print "aoe: makeNewAnimation("+_name+")" //DEBUG
+	dat = OpenToRead(mediadir + _name + "/Image.dat")
+	width = Int(ReadLine(dat))
+	height = Int(ReadLine(dat))
+	mask = Int(ReadLine(dat))
+	_directions$ = ReadLine(dat)
+	directions = CountWords(_directions)
+	For i = 0 To directions 
+		_newDirection = Int(GetWord(_directions, i))
+		newAnimation(loadFrames(_name, _newDirection), _name, _newDirection)
+	Next i
+	CloseFile(dat)
+EndFunction
+
 Function newAnimation(_frames, _name$, _direction)
 	Print "aoe: newAnimation("+_frames+", "+_name+", "+_direction+")" //DEBUG
 	_newAnimation.animation	= New(animation)
@@ -56,7 +72,7 @@ Function getAnimation(_name$, _direction)
 		//todo: jos ei löydy samaa direction, niin lähin.
 		If (_animation\name = _name And _animation\direction = _direction) Then Return ConvertToInteger(_animation)
 	Next _animation
-	MakeError "aoe: ERROR - getAnimation() failed" //DEBUG
+	Print "aoe: ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found" //DEBUG
 	Return False
 End Function
 
@@ -65,18 +81,21 @@ End Function
 Function loadEverything()
 	Print "aoe: loadEverything()" //DEBUG
 
-	newAnimation(loadFrames("tiles/grass", 0, 0), "tiles/grass", 0)
-	newAnimation(loadFrames("units/soldier", 0, 1), "units/soldier", 0)
+'	newAnimation(loadFrames("tiles/grass", 0), "tiles/grass", 0)
+'	newAnimation(loadFrames("units/soldier", 0), "units/soldier", 0)
 
 	ChDir "media/tiles"
 	StartSearch
-	Repeat
+	Repeat 
 		file$ = FindFile()
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
-			If (FileExists(CurrentDir()+file+"/Image.dat") And FileExists(CurrentDir()+file+"/Image.png") And FileExists(CurrentDir()+file+"/Prototype.dat")) Then
-				f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+			If (FileExists(tiledir + file + "/Image.dat") And FileExists(tiledir + file + "/Image.png") And FileExists(tiledir + file + "/Prototype.dat")) Then
+				makeNewAnimation("tiles/"+file)
+
+				f = OpenToRead(tiledir + file+"/Prototype.dat")
 				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 0))
+				CloseFile(f)
 			Else
 				Print "aoe: ERROR - loadEverything() failed - could Not load tiles/"+file //DEBUG
 			EndIf
@@ -90,9 +109,12 @@ Function loadEverything()
 		file$ = FindFile()
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
-			If (FileExists(CurrentDir()+file+"/Image.dat") And FileExists(CurrentDir()+file+"/Image.png") And FileExists(CurrentDir()+file+"/Prototype.dat")) Then
-				f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+			If (FileExists(unitsdir + file+"/Image.dat") And FileExists(unitsdir+file+"/Image.png") And FileExists(unitsdir + file + "/Prototype.dat")) Then
+				makeNewAnimation("units/"+file)
+
+				f = OpenToRead(unitsdir + file + "/Prototype.dat")
 				newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+				CloseFile(f)
 			Else
 				Print "aoe: ERROR - loadEverything() failed - could Not load units/"+file //DEBUG
 			EndIf

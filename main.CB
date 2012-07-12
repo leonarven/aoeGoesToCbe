@@ -1,8 +1,8 @@
 ' TODO
 'DONE(?)	entiteetit ja tilet piirtymään pohjasalmiakin keskipisteen mukaan
+'DONE		kaikki tavara tiedostoista
 '			tilet tietoisiksi niillä olevista entiteeteistä
 '				entiteettien piirto vain näkyviltä tileiltä
-'			tiedostoista prototyypit ja animaatiot ja muutkin härpäkkeet
 '			piirto(rendaus) vain kun pakko
 '			törmäystarkistus
 '				...vain lähitileiltä
@@ -16,23 +16,33 @@ Global MS 'map size
 Global CamX, CamY, CamSpeed
 Global PlayerSelect
 Global PanelHeight
+Global rootdir$, mediadir$, tiledir$, unitsdir$
 
 Global entityCounter
 Global entityPrototypeCounter
 Global tileCounter
 Global tilePrototypeCounter
 
-SW = 640 'screen width
-SH = 480 'screen height
+rootdir = CurrentDir()
+mediadir = rootdir + "media/"
+tiledir = mediadir + "tiles/"
+unitsdir = mediadir + "units/"
+
+f = OpenToRead("game.dat")
+
+SW = Int(ReadLine(f)) 'screen width
+SH = Int(ReadLine(f)) 'screen height
 
 //TS = 16 'tile size
-TW = 128 : TW2 = TW/2 'tile size
-TH = 64  : TH2 = TH/2 'tile size
+TW = Int(ReadLine(f)) : TW2 = TW/2 'tile size
+TH = Int(ReadLine(f))  : TH2 = TH/2 'tile size
 
-MS = 32
+MS = Int(ReadLine(f))
 
-CamSpeed = 20
-PanelHeight = 120
+CamSpeed = Int(ReadLine(f))
+PanelHeight = Int(ReadLine(f))
+
+CloseFile(f)
 
 SCREEN SW, SH
 
