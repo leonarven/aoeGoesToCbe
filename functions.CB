@@ -21,12 +21,12 @@ Function newPosition(_x#, _y#)
 	Return ConvertToInteger(_position)
 EndFunction
 
-Function positionToX(position)
+Function positionTotileX#(position)
 	p.vector2 = ConvertToType(position)
 	Return p\x
 EndFunction
 
-Function positionToY(position)
+Function positionTotileY#(position)
 	p.vector2 = ConvertToType(position)
 	Return p\y
 EndFunction
@@ -189,7 +189,7 @@ Function drawWorld()
 			tx = tilexToX(nx, ny)
 			ty = tileyToY(nx, ny)
 
-			If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < SW) Then
+			If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < (SW-PanelHeight)) Then
 				_tile.tile = ConvertToType(map(nx, ny))
 				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
 				_anim.animation = ConvertToType(_tilePrototype\anim)
@@ -200,27 +200,77 @@ Function drawWorld()
 	Next z
 
 	For _entity.entity = Each entity
-		x = positionToX(_entity\position)
-		y = positionToY(_entity\position)
+		mx# = positionTotileX(_entity\position)
+		my# = positionTotileY(_entity\position)
 	
-		tx = tilexToX(x, y)
-		ty = tileyToY(x, y)
+		tx = tilexToX(mx-2, my)
+		ty = tileyToY(mx-2, my)
 
-'		Print "aoe: drawWorld - entity - ("+x+","+y+") -> ("+tx+","+ty+")"
 '		If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < SW) Then
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
-'			Print "aoe: drawWorld - entity - prototype - " + _entityPrototype\name
 			_anim.animation = ConvertToType(_entityPrototype\anim)
-'			Print "aoe: drawWorld - entity - anim - " + _anim\name
 
 			DrawImage PeekInt(_anim\frames, 3), tx, ty
+			Color 255,255,255
+			Text tx, ty, Str(mx)+","+Str(my)
 '		EndIf
 	Next _entity
 End Function
 
 Function controls()
+	MouX = MouseX()
+	MouY = MouseY()
+
 	CamX = CamX - CamSpeed * (KeyDown(32) - KeyDown(30))
 	CamY = CamY - CamSpeed * (KeyDown(31) - KeyDown(17))
+	
+	hit = False
+	
+	If (MouseUp(1)) Then
+		For _entity.entity = Each entity
+			mx# = positionTotileX(_entity\position)
+			my# = positionTotileY(_entity\position)
+		
+			tx = tilexToX(mx-2, my)
+			ty = tileyToY(mx-2, my)
+
+			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
+			_anim.animation = ConvertToType(_entityPrototype\anim)
+			img = PeekInt(_anim\frames, 3)
+
+			tw = ImageWidth(img)/PeekByte(_anim\frames, 0)
+			th = ImageHeight(img)
+
+			If (MouX > tx And MouX < (tx + tw) And MouY > ty And MouY < (ty + th)) Then
+				PlayerSelect = ConvertToInteger(_entity)
+				hit = True
+			EndIf
+		Next _entity
+		If (hit = False) then PlayerSelect = 0
+	EndIf
+EndFunction
+
+Function drawGUI()
+	h = SH-panelHeight
+
+	Color 120,120,120
+	Line 0, h, SW, SH-panelHeight
+	Color cbBlackSkin
+	Box 0, h+2, SW, SH
+
+	If (PlayerSelect <> 0) Then 
+		ps.entity = ConvertToType(PlayerSelect)
+		psPrototype.entityPrototype = ConvertToType(ps\prototype)
+
+		psPosition.vector2 = ConvertToType(ps\position)
+
+		Color 255,255,255
+		Text 100, h + 10, psPrototype\name
+		Text 200, h + 10, "("+psPosition\x+","+psPosition\y+")"
+		Text 100, h + 20, ps\hp+"/"+psPrototype\hp
+		Text 100, h + 30, "("+psPrototype\attack+", "+psPrototype\defence+", "+psPrototype\armory+", "+psPrototype\range+")"
+		Text 100, h + 50, "state: " + ps\state
+	EndIf
 EndFunction
 
 Function generateMap()
@@ -230,9 +280,10 @@ Function generateMap()
 			prototype = getTilePrototype("tiles/grass")
 			map(x, y) = newTile(prototype)
 			
-			If (Rand(10) = 1) Then newEntity(getEntityPrototype("units/soldier"), newPosition(x + 0.5, y + 0.5))
+			If (Rand(10) = 1) Then newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
 		Next y
 	Next x
+	newEntity(getEntityPrototype("units/soldier"), newPosition(0, 0))
 End Function
 
 Function initMap()
@@ -240,7 +291,5 @@ Function initMap()
 	ReDim map(MS, MS)
 
 	CamX = 0
-	CamY = 0
-
-	
+	CamY = 0	
 End Function
