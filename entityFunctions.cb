@@ -41,6 +41,9 @@ Function newEntity(_prototype, _position)
 	_newEntity\state = 0
 	_newEntity\group = 0
 	_newEntity\direction = 0
+	_newEntity\anim = 0
+	_newEntity\frame = 0
+	_newEntity\lastFrameTime = GameTime
 	_newEntity\attackTarget = 0
 	_newEntity\actionBuffer = MakeMEMBlock(11 * 4)
 	_newEntity\actionProgress = 0
@@ -50,3 +53,60 @@ Function newEntity(_prototype, _position)
 
 	Return ConvertToInteger(_newEntity)
 End Function
+
+Function addEntityToGroup(_group, _entity)
+	tGroup.group = ConvertToType(_group)
+	If (tGroup\entitiesCount < maxGroupEntities) Then 
+		For i = 0 To maxGroupEntites
+			p = PeekInt(tGroup\entities, i)
+			If (p = 0) Then
+				PokeInt tGroup\entities, i, _entity
+				Return False
+			EndIf
+		Next i
+		tGroup\entitiesCount = tGroup\entitiesCount + 1 
+	EndIf
+EndFunction
+
+Function deleteEntityFromGroup(_group, _entity)
+	tGroup.group = ConvertToType(_group)
+
+	For i = 0 To maxGroupEntites
+		p = PeekInt(tGroup\entities, i)
+		If (p = _entity) Then
+			PokeInt tGroup\entities, i, 0
+			tGroup\entitiesCount = tGroup\entitiesCount - 1 
+			Return False
+		EndIf
+	Next i
+EndFunction
+
+Function addGroup()
+	_newGroup.group = New(group)
+	_newGroup\entities = MakeMEMBlock(maxEntites * 4)
+	_newGroup\isActivated = False
+	Return ConvertToInteger(_newGroup)
+EndFunction
+
+Function deleteGroup(_entity)
+	For tGroup.group = Each group
+		_tGroup = ConvertToInteger(tGroup)
+		If (_tGroup = _group) Then Delete tGroup
+	Next tGroup
+EndFunction
+
+'Function getGroup(_group)
+'	For tGroup.group = Each group
+'		_tGroup = ConvertToInteger(_tGroup)
+'		If (_tGroup = _group) Then Return _tGroup
+'	Next tGroup
+'	Print "aoe: ERROR - getGroup() failed - group "+_group+" Not found" //DEBUG
+'	Return False
+'EndFunction
+
+Function activateGroup(_group)
+	tGroup.group = ConvertToType(_group)
+	tGroup\isActivated = True
+	tGroup\speed = 999
+	//todo: kaikki läpi, hitain esiin
+EndFunction

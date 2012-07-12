@@ -17,7 +17,7 @@ EndFunction
 
 Function loadFrames(_name$, _direction)
 	Print "aoe: loadFrames("+_name+", "+_direction+", "+mask+")" //DEBUG
-	mem = MakeMEMBlock(9)
+	mem = MakeMEMBlock(5)
 
 	dat = OpenToRead(mediadir + _name + "/Image.dat")
 	img = LoadImage(mediadir + _name + "/Image.png")
@@ -32,12 +32,9 @@ Function loadFrames(_name$, _direction)
 	framesCount = Int(ImageWidth(img)/wimg)
 	
 	PokeByte mem, 0, framesCount
-	PokeByte mem, 1, width
-	PokeByte mem, 2, height
-	PokeByte mem, 3, wimg
-	PokeInt  mem, 4, img
+	PokeInt  mem, 1, img
 	
-	Return mem
+	Return mem 'muistipala, jotta voi palauttaa useita arvoja
 End Function 
 
 // ANIMAATIOT >>>>>>>>>>>>>>>
@@ -49,20 +46,26 @@ Function makeNewAnimation(_name$)
 	height = Int(ReadLine(dat))
 	mask = Int(ReadLine(dat))
 	_directions$ = ReadLine(dat)
+	_speed = Int(ReadLine(dat))
 	directions = CountWords(_directions)
 	For i = 0 To directions 
 		_newDirection = Int(GetWord(_directions, i))
-		newAnimation(loadFrames(_name, _newDirection), _name, _newDirection)
+		newAnimation(loadFrames(_name, _newDirection), _name, _newDirection, _speed)
 	Next i
 	CloseFile(dat)
 EndFunction
 
-Function newAnimation(_frames, _name$, _direction)
+Function newAnimation(_frames, _name$, _direction, _speed)
+	'_frames muistipala, jotta voi palauttaa useita arvoja
 	Print "aoe: newAnimation("+_frames+", "+_name+", "+_direction+")" //DEBUG
-	_newAnimation.animation	= New(animation)
-	_newAnimation\frames	= _frames
-	_newAnimation\name		= _name
-	_newAnimation\direction	= _direction
+	_newAnimation.animation		= New(animation)
+	_newAnimation\framesImg		= PeekInt(_frames,1)
+	_newAnimation\framesCount	= PeekByte(_frames,0)
+	_newAnimation\name			= _name
+	_newAnimation\speed			= _speed
+	_newAnimation\direction		= _direction
+	DeleteMEMBlock _frames
+
 
 	Return ConvertToInteger(_newAnimation)
 End Function
@@ -125,6 +128,24 @@ Function loadEverything()
 		EndIf
 	Forever
 	EndSearch
+	ChDir "../buildings"
+	StartSearch
+	Repeat
+		file$ = FindFile()
+		If file = "" Then Exit 'no more files
+		If Not (file = "." Or file = "..") Then 
+			If (FileExists(unitsdir + file+"/Image.dat") And FileExists(unitsdir+file+"/Image.png") And FileExists(unitsdir + file + "/Prototype.dat")) Then
+				makeNewAnimation("buildings/"+file)
+
+				f = OpenToRead(unitsdir + file + "/Prototype.dat")
+				newEntityPrototype(Int(ReadLine(f)), "buildings/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+				CloseFile(f)
+			Else
+				Print "aoe: ERROR - loadEverything() failed - could Not load buildings/"+file //DEBUG
+			EndIf
+		EndIf
+	Forever
+	EndSearch
 	ChDir "../.."
 EndFunction
 
@@ -142,7 +163,7 @@ Function drawWorld()
 				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
 				_anim.animation = ConvertToType(_tilePrototype\anim)
 
-				DrawImage PeekInt(_anim\frames, 4), tx, ty
+				DrawImage _anim\framesImg, tx, ty
 			EndIf
 		Next y
 	Next z
@@ -157,10 +178,12 @@ Function drawWorld()
 '		If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < SW) Then
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
 			_anim.animation = ConvertToType(_entityPrototype\anim)
+			_position.vector2 = ConvertToType(_entity\position)
+			img = _anim\framesImg
 
-			DrawImage PeekInt(_anim\frames, 4), tx, ty
+			DrawImageBox img, tx, ty, ImageWidth(img) / _anim\framesCount * _entity\frame, 0, TW, ImageHeight(img)
 			Color 255,255,255
-			Text tx, ty, Str(mx)+","+Str(my)
+			Text tx, ty, Str(mx)+","+Str(my)+":"+_entity\frame+","+_anim\framesCount+" - "+_anim\speed
 '		EndIf
 	Next _entity
 End Function
@@ -174,7 +197,10 @@ Function controls()
 	
 	hit = False
 	
-	If (MouseUp(1)) Then
+	If MouseHit(1) Then
+		deleteGroup(PlayerSelectedGroup)
+		PlayerSelectedGroup = addGroup()
+	ElseIf MouseUp(1) Then
 		For _entity.entity = Each entity
 			mx# = positionTotileX(_entity\position)
 			my# = positionTotileY(_entity\position)
@@ -184,17 +210,18 @@ Function controls()
 
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
 			_anim.animation = ConvertToType(_entityPrototype\anim)
-			img = PeekInt(_anim\frames, 4)
+			img = _anim\framesImg
 
-			tw = ImageWidth(img)/PeekByte(_anim\frames, 0)
+			tw = ImageWidth(img)/_anim\framesCount
 			th = ImageHeight(img)
 
 			If (MouX > tx And MouX < (tx + tw) And MouY > ty And MouY < (ty + th)) Then
-				PlayerSelect = ConvertToInteger(_entity)
+				addEntityToGroup(PlayerSelectedGroup, _entity)
+				PlayerSelectedGroup = addGroup()
 				hit = True
 			EndIf
 		Next _entity
-		If (hit = False) then PlayerSelect = 0
+		If (hit = False) then PlayerSelectedGroup = 0
 	EndIf
 EndFunction
 
@@ -223,16 +250,41 @@ EndFunction
 
 Function generateMap()
 	Print "aoe: generateMap()" //DEBUG
+	newEntity(getEntityPrototype("units/vieteri"), newPosition(0, 0))
 	For x = 0 To MS
 		For y = 0 To MS
 			prototype = getTilePrototype("tiles/grass")
 			map(x, y) = newTile(prototype)
 			
-			If (Rand(10) = 1) Then newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
+			Select(Rand(10)) 
+				Case 1
+					newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
+				Case 2
+					newEntity(getEntityPrototype("units/vieteri"), newPosition(x, y))
+'				Case 3
+'					newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
+				Default
+			End Select
 		Next y
 	Next x
-	newEntity(getEntityPrototype("units/soldier"), newPosition(0, 0))
 End Function
+
+Function updateAI()
+	For tEntity.entity = Each entity
+		_entityPrototype.entityPrototype = ConvertToType(tEntity\prototype)
+		_anim.animation = ConvertToType(_entityPrototype\anim)
+
+		'animaatio
+		If _anim\framesCount > 1 And _anim\speed > 0 Then
+			framesElapsed# = ((GameTime - tEntity\lastFrameTime) / Float(_anim\speed)) 
+			If (framesElapsed > 1) Then
+				tEntity\lastFrameTime = GameTime - (framesElapsed - RoundDown(framesElapsed)) * _anim\speed
+
+				tEntity\frame = (tEntity\frame + RoundDown(framesElapsed)) Mod _anim\framesCount
+			EndIf
+		EndIf
+	Next tEntity
+EndFunction
 
 Function initMap()
 	Print "aoe: iniMap()" //DEBUG

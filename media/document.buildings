@@ -1,0 +1,18 @@
+Image.dat:
+1	leveys tileinä ("oikealle alas")
+2	korkeus tileinä (huom.isometria) ("vasemmalle alas")
+3	maski
+4	suunnat, joihin on animaatio (asteina)
+5	animaationframejen väli millisekunteina
+Prototype.dat
+1	max hp
+2	(player) <- poistuu.
+3	attack
+4	defence
+5	armory
+6	range (1 = melee)
+7	abilities
+8	los
+9	speed
+10	leveys tileinä
+11	korkeus tileinä

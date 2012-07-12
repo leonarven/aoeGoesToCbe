@@ -1,0 +1,9 @@
+Image.dat:
+1	leveys tileinä ("oikealle alas")
+2	korkeus tileinä (huom.isometria) ("vasemmalle alas")
+3	maski
+4	suunnat, joihin on animaatio (asteina)
+5	animaationframejen väli millisekunteina
+Prototype.dat
+1	"voiko kävellä"
+2	"voiko seilata"

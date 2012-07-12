@@ -8,7 +8,7 @@ Type entityPrototype
 	Field attack		'hyokkays(voima)
 	Field defence		'haarniska (nuolet)
 	Field armory		'puolutus (lahitaistelu)
-	Field range			'kuinka pitkalle voi hyokkia
+	Field range			'kuinka pitkalle voi hyokkia, 1 jos melee
 	Field abilities		'muisipala - viittaukset actionprototypeseihin
 	Field LOS			'tasatileja
 	Field anim			'maaraa animaatiot
@@ -25,7 +25,9 @@ Type entity
 	Field state		'mita tekee atm
 	Field group		'mihin ryhmaan kuuluu (uid), jos mihinkaan
 	Field direction
-
+	Field anim
+	Field frame
+	Field lastFrameTime
 
 	Field attackTarget		'kodehahmo, jota kohti hyokkaillaan
 	Field actionBuffer		'muistipala - lista toimitettavista actioneista
@@ -65,20 +67,35 @@ Type vector2
 	Field y As Float
 End Type
 
+Type vector3
+	Field x As Float
+	Field y As Float
+End Type
+
 Type group
-	Field uid As Integer	'uniikki tunniste
 	Field speed As Integer	'ryhman hitaimman yksilon nopeus
+	Field entitiesCount
+	Field entities
+	Field isActivated
 End Type
 
 Type animation
-	Field frames		'muistipala kuvan osista
-	Field name As String			
+	Field framesCount
+	Field framesImg		'kuva
+	Field name As String
+	Field speed
 	Field direction		'suunta, johon entiteetti ON tassa animaatiossa
 End Type
 
 Type path // TODO
 	Field position As Integer		'vector2 - kohdesijainti
 	Field parentEntity As Integer	
+End Type
+
+Type particle
+	Field position
+	Field movement		'vector3
+	Field g
 End Type
 
 'Type player

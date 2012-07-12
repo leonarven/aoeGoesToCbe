@@ -12,9 +12,11 @@ DefaultMask OFF
 Global SW, SH 'screen size
 Global TS, TW, TH, TW2, TH2 'tile size
 Global MS 'map size
+Global StartTime : StartTime = Timer()
+Global GameTime
 
 Global CamX, CamY, CamSpeed
-Global PlayerSelect
+Global PlayerSelectedGroup, PlayerSelectStartX, PlayerSelectStartY
 Global PanelHeight
 Global rootdir$, mediadir$, tiledir$, unitsdir$
 
@@ -22,6 +24,8 @@ Global entityCounter
 Global entityPrototypeCounter
 Global tileCounter
 Global tilePrototypeCounter
+
+Global maxGroupEntites : maxGroupEntites = 30
 
 rootdir = CurrentDir()
 mediadir = rootdir + "media/"
@@ -42,6 +46,7 @@ MS = Int(ReadLine(f))
 CamSpeed = Int(ReadLine(f))
 PanelHeight = Int(ReadLine(f))
 
+
 CloseFile(f)
 
 SCREEN SW, SH
@@ -60,8 +65,11 @@ loadEverything()
 generateMap()
 
 Repeat
+	GameTime = Timer() - StartTime
+
 	Line 0,0,Rand(255),Rand(255)
 	controls()
+	updateAI()
 	drawWorld()
 	drawGUI()
 	SetWindow "FPS: " + FPS()
