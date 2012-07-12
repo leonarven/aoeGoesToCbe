@@ -34,11 +34,11 @@ EndFunction
 Function loadFrames(_name$, _direction, mask)
 	mem = MakeMEMBlock(8)
 
-	If (Not FileExists("media/" + _name + ".txt")) Then MakeError "file media/" + _name + ".txt Not exists"
-	If (Not FileExists("media/" + _name + ".png")) Then MakeError "file media/" + _name + ".png Not exists"
+	If (Not FileExists("media/" + _name + "/Image.dat")) Then MakeError "file media/" + _name + "/Image.dat Not exists"
+	If (Not FileExists("media/" + _name + "/Image.png")) Then MakeError "file media/" + _name + "/Image.png Not exists"
 
-	dat = OpenToRead("media/" + _name + ".txt")
-	img = LoadImage("media/" + _name + ".png")
+	dat = OpenToRead("media/" + _name + "/Image.dat")
+	img = LoadImage("media/" + _name + "/Image.png")
 
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
@@ -174,10 +174,31 @@ Function newEntity(_prototype, _position)
 End Function
 
 Function loadPrototypes()
-	newTilePrototype("tiles/grass", True, False, getAnimation("tiles/grass", 0))
+	Print "aoe: loadPrototypes()" //DEBUG
+	ChDir "media/tiles"
+	StartSearch
+	Repeat
+		file$ = FindFile()
+		If file = "" Then Exit 'no more files
+		If Not (file = "." Or file = "..") Then 
+			f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+			newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 0))
+		EndIf
+	Forever
+	EndSearch
 
-'	newEntityPrototype(_hp,_name$,         _player,_attack,_defence,_armory,_range,_abilities,_LOS,_anim    ,                       _speed,_size)
-	newEntityPrototype(100,"units/soldier",1,      10,     10,      10,     5,     0,         5,   getAnimation("units/soldier", 0),10, newPosition(1, 1))
+	ChDir "../units"
+	StartSearch
+	Repeat
+		file$ = FindFile()
+		If file = "" Then Exit 'no more files
+		If Not (file = "." Or file = "..") Then 
+			f = OpenToRead(CurrentDir()+file+"/Prototype.dat")
+			newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
+		EndIf
+	Forever
+	EndSearch
+	ChDir "../.."
 EndFunction
 
 Function drawWorld()
