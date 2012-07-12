@@ -68,21 +68,25 @@ Function newAnimation(_frames, _name$, _direction)
 End Function
 
 Function getAnimation(_name$, _direction)
+	retmin = 999
+	ret = False
 	For _animation.animation = Each animation
-		//todo: jos ei löydy samaa direction, niin lähin.
-		If (_animation\name = _name And _animation\direction = _direction) Then Return ConvertToInteger(_animation)
+		If (_animation\name = _name) Then
+			If (_animation\direction = _direction) Then
+				Return ConvertToInteger(_animation)
+			Else 
+				If Abs(_animation\direction-_direction) < retmin Then ret = ConvertToInteger(_animation)
+			EndIf
+		EndIf
 	Next _animation
-	Print "aoe: ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found" //DEBUG
-	Return False
+	If (ret = False) then Print "aoe: ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found" //DEBUG
+	Return ret
 End Function
 
 // ANIMAATIOT <<<<<<<<<<<<<<<
 
 Function loadEverything()
 	Print "aoe: loadEverything()" //DEBUG
-
-'	newAnimation(loadFrames("tiles/grass", 0), "tiles/grass", 0)
-'	newAnimation(loadFrames("units/soldier", 0), "units/soldier", 0)
 
 	ChDir "media/tiles"
 	StartSearch
@@ -94,7 +98,7 @@ Function loadEverything()
 				makeNewAnimation("tiles/"+file)
 
 				f = OpenToRead(tiledir + file+"/Prototype.dat")
-				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 0))
+				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 1))
 				CloseFile(f)
 			Else
 				Print "aoe: ERROR - loadEverything() failed - could Not load tiles/"+file //DEBUG
