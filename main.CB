@@ -10,23 +10,38 @@
 
 DefaultMask OFF
 
-Global SW, SH 'screen size
-Global TS, TW, TH, TW2, TH2 'tile size
-Global MS 'map size
-Global StartTime : StartTime = Timer()
-Global GameTime
+Include "cbeFunctions.cb"
+Include "types.cb"
+Include "commonFunctions.cb"
+Include "tileFunctions.cb"
+Include "entityFunctions.cb"
 
-Global CamX, CamY, CamSpeed
-Global PlayerSelectedGroup, PlayerSelectStartX, PlayerSelectStartY
-Global PanelHeight
+Global StartTime : StartTime = Timer()
+Global GameTime  : StartTime = Timer()
+
+Global CamX, CamY
 Global rootdir$, mediadir$, tiledir$, unitsdir$, buildingsdir$
 
+Global mouseMoveControlTimer : mouseMoveControlTimer = 0
+Global mouseMoveControlTimerDelay : mouseMoveControlTimerDelay = 1000
+Global mouseMoveControlDistance : mouseMoveControlDistance = 20
+Global mouseMoveControlCamSpeed : mouseMoveControlCamSpeed = 4
+Global mouseMoveControlActive : mouseMoveControlActive = 0
+
+Global debugLevel : debugLevel = 0
+Global debugValuesVisible : debugValuesVisible = 1
 Global entityCounter
 Global entityPrototypeCounter
 Global tileCounter
 Global tilePrototypeCounter
 
-Global maxGroupEntites : maxGroupEntites = 30
+Global verboseMax: verboseMax = 2
+'0 = ei mitaan
+'1 = onInit
+'2 = onEvent
+'3 = onLoop
+
+Global maxGroupEntities : maxGroupEntities = 30
 
 rootdir = CurrentDir()
 mediadir = rootdir + "media/"
@@ -34,31 +49,28 @@ tiledir = mediadir + "tiles/"
 unitsdir = mediadir + "units/"
 buildingdir = mediadir + "buildings/"
 
+If not FileExists("game.dat") Then MakeError("Configuration file (game.dat) not found!")
 f = OpenToRead("game.dat")
 
-SW = Int(ReadLine(f)) 'screen width
-SH = Int(ReadLine(f)) 'screen height
+Global SW       : SW = Int(ReadLine(f)) 'screen width
+Global SH       : SH = Int(ReadLine(f)) 'screen height
 
-//TS = 16 'tile size
-TW = Int(ReadLine(f)) : TW2 = TW/2 'tile size
-TH = Int(ReadLine(f))  : TH2 = TH/2 'tile size
+Global TS       : TS = 16
+Global TW, TW2  : TW = Int(ReadLine(f)) : TW2 = TW/2 'tile size
+Global TH, TH2  : TH = Int(ReadLine(f)) : TH2 = TH/2 'tile size
 
-MS = Int(ReadLine(f))
+Global MS       : MS = Int(ReadLine(f))
 
-CamSpeed = Int(ReadLine(f))
-PanelHeight = Int(ReadLine(f))
+Global CamSpeed : CamSpeed = Int(ReadLine(f))
+Global PanelHeight : PanelHeight = Int(ReadLine(f))
 
+Global PlayerSelectedGroup : PlayerSelectedGroup = addGroup()
+Global PlayerSelectStartX  : PlayerSelectStartX = -1
+Global PlayerSelectStartY  : PlayerSelectStartY = -1
 
 CloseFile(f)
 
 SCREEN SW, SH
-
-Include "customfunctions.cb"
-Include "types.cb"
-Include "commonFunctions.cb"
-Include "tileFunctions.cb"
-Include "entityFunctions.cb"
-
 cbeShowConsole(True)
 Dim map(MS, MS)
 
@@ -69,12 +81,15 @@ generateMap()
 Repeat
 	GameTime = Timer() - StartTime
 
-	Line 0,0,Rand(255),Rand(255)
 	controls()
 	updateAI()
 	drawWorld()
 	drawGUI()
-	SetWindow "FPS: " + FPS()
 
+	Color 255, 255, 255
+	Line 0,0,Rand(255),Rand(255)
+	SetWindow "FPS: " + FPS()
 	DrawScreen
-Forever
+Until KeyHit(1)
+
+deleteGroup(PlayerSelectedGroup)

@@ -51,8 +51,8 @@ Type tilePrototype
 	Field isWalkable	'voiko tassa kavella
 	Field isSailable	'voiko veneilla paalla
 	Field anim			'tilen grafiikka
-	Field name As String			
-	Field uid			
+	Field name As String
+	Field uid			'tilen tyyppi
 End Type
 
 Type tile
@@ -70,6 +70,7 @@ End Type
 Type vector3
 	Field x As Float
 	Field y As Float
+	Field z As Float
 End Type
 
 Type group
@@ -82,6 +83,9 @@ End Type
 Type animation
 	Field framesCount
 	Field framesImg		'kuva
+	Field imgWidth
+	Field imgheight
+	Field wimg			'yksittäisen framen leveys
 	Field name As String
 	Field speed
 	Field direction		'suunta, johon entiteetti ON tassa animaatiossa
@@ -93,11 +97,19 @@ Type path // TODO
 End Type
 
 Type particle
-	Field position
+	Field position		
 	Field movement		'vector3
-	Field g
+	Field m				'"massa" (arvo, joka vaikuttaa putoamiseen)
 End Type
 
-'Type player
-	
-'End Type = 
+Type player
+	Field name			
+	Field team			
+	Field points		
+	Field unitsCount	
+	Field villagersCount	
+	Field resourceFood	
+	Field resourceWood	
+	Field resourceRock	
+	Field resourceGold	
+End Type 

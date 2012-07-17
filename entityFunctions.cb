@@ -1,5 +1,5 @@
 Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _range, _abilities, _LOS, _anim, _speed, _size)
-	debug(">>> newEntityPrototype()") //DEBUG
+	debug(1, ">newEntityPrototype()") //DEBUG
 	
 	entityPrototypeCounter = entityPrototypeCounter + 1
 	_newEntityPrototype.entityPrototype = New(entityPrototype)
@@ -17,7 +17,7 @@ Function newEntityPrototype(_hp, _name$, _player, _attack, _defence, _armory, _r
 	_newEntityPrototype\speed = _speed
 	_newEntityPrototype\size = _size
 	
-	debug("<<< newEntityPrototype()") //DEBUG
+	debug(1, "<newEntityPrototype()") //DEBUG
 	Return ConvertToInteger(_newEntityPrototype)
 EndFunction
 
@@ -25,12 +25,12 @@ Function getEntityPrototype(_name$)
 	For _entityPrototype.entityPrototype = Each entityPrototype
 		If (_entityPrototype\name = _name) Then Return ConvertToInteger(_entityPrototype)
 	Next _entityPrototype
-	Print "aoe: ERROR - getEntityPrototype() failed - entity "+_name+" Not found" //DEBUG
+	error("getEntityPrototype()", "entity "+_name+" Not found") //DEBUG
 	Return False
 EndFunction
 
 Function newEntity(_prototype, _position)
-'	debug(">>> newEntity("+_prototype+","+_position+")") //DEBUG
+'	debug(1, "> newEntity("+_prototype+","+_position+")") //DEBUG
 
 	entityCounter = entityCounter + 1
 
@@ -54,27 +54,33 @@ Function newEntity(_prototype, _position)
 	_newEntity\resource = 0
 	_newEntity\resourceAmount = 0
 
-'	debug("<<< newEntity("+_prototype+","+_position+")") //DEBUG
+'	debug(1, "< newEntity("+_prototype+","+_position+")") //DEBUG
 	Return ConvertToInteger(_newEntity)
-End Function
+EndFunction
 
-Function addEntityToGroup(_group, _entity)
+Function groupAddEntity(_group, _entity)
+	debug(2, ">groupAddEntity("+_group+", "+_entity+")")
 	tGroup.group = ConvertToType(_group)
+	t = -1
 	If (tGroup\entitiesCount < maxGroupEntities) Then 
 		For i = 0 To maxGroupEntites
 			p = PeekInt(tGroup\entities, i)
-			If (p = 0) Then
-				PokeInt tGroup\entities, i, _entity
+			If (p = 0 And t = -1) Then t  = i
+			If (p = _entity) Then
+				debug(2, "<groupAddEntity("+_group+", "+_entity+")")
 				Return False
 			EndIf
 		Next i
-		tGroup\entitiesCount = tGroup\entitiesCount + 1 
+		If (t <> -1) Then
+			PokeInt tGroup\entities, t, _entity
+			tGroup\entitiesCount = tGroup\entitiesCount + 1 
+		EndIf
 	EndIf
+	debug(2, "<groupAddEntity("+_group+", "+_entity+")")
 EndFunction
 
-Function deleteEntityFromGroup(_group, _entity)
+Function groupDeleteEntity(_group, _entity)
 	tGroup.group = ConvertToType(_group)
-
 	For i = 0 To maxGroupEntites
 		p = PeekInt(tGroup\entities, i)
 		If (p = _entity) Then
@@ -87,15 +93,20 @@ EndFunction
 
 Function addGroup()
 	_newGroup.group = New(group)
+	_newGroup\speed = 0
+	_newGroup\entitiesCount = 0
 	_newGroup\entities = MakeMEMBlock(maxEntites * 4)
 	_newGroup\isActivated = False
 	Return ConvertToInteger(_newGroup)
 EndFunction
 
-Function deleteGroup(_entity)
+Function deleteGroup(_group)
 	For tGroup.group = Each group
 		_tGroup = ConvertToInteger(tGroup)
-		If (_tGroup = _group) Then Delete tGroup
+		If (_tGroup = _group) Then 
+			DeleteMEMBlock(tGroup\entities)
+			Delete tGroup
+		EndIf
 	Next tGroup
 EndFunction
 
@@ -108,9 +119,21 @@ EndFunction
 '	Return False
 'EndFunction
 
-Function activateGroup(_group)
+Function groupEmpty(_group)
+	tGroup.group = ConvertToType(_group)
+	For i = 0 To maxGroupEntites
+		PokeInt tGroup\entities, i, 0
+	Next i
+EndFunction
+
+Function groupActivate(_group)
 	tGroup.group = ConvertToType(_group)
 	tGroup\isActivated = True
 	tGroup\speed = 999
 	//todo: kaikki läpi, hitain esiin
+EndFunction
+
+Function groupEntitiesCount(_group)
+	tGroup.group = ConvertToType(_group)
+	Return tGroup\entitiesCount
 EndFunction

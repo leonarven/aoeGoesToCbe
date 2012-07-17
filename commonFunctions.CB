@@ -1,5 +1,26 @@
-Function debug(txt$)
-	Print "aoe("+ GameTime +"): "+txt
+Function debug(lvl, txt$)
+	If (lvl <= verboseMax) Then
+		m$         = ""
+		Select (Left(txt, 1))
+			Case ">" 
+'				debugLevel = debugLevel + 1
+			Case "<" 
+				debugLevel = debugLevel - 1
+		EndSelect
+		Select(lvl)
+			Case 0  : prefixtxt$ = "NONE : "
+			Case 1  : prefixtxt$ = "INIT : "
+			Case 2  : prefixtxt$ = "EVENT: "
+			Case 3  : prefixtxt$ = "LOOP : "
+			Default : prefixtxt$ = "     : "
+		EndSelect
+		Print "aoe("+ RSet(""+Timer(), 6) +"): " + prefixtxt + str_repeat(" ", debugLevel) + m + txt
+		If (Left(txt, 1) = ">") Then debugLevel = debugLevel + 1
+	EndIf
+EndFunction
+
+Function error(func$, txt$)
+	debug(-1, func + " failed - " + txt)
 EndFunction
 
 Function newPosition(_x#, _y#)
@@ -20,7 +41,7 @@ Function positionTotileY#(position)
 EndFunction
 
 Function loadFrames(_name$, _direction)
-	debug(">>> loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
+	debug(1, ">loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
 	mem = MakeMEMBlock(5)
 
 	dat = OpenToRead(mediadir + _name + "/Image.dat")
@@ -31,24 +52,23 @@ Function loadFrames(_name$, _direction)
 	mask = Int(ReadLine(dat))
 	wimg = (width+height)*TW2
 
-
 	if (mask) Then MaskImage img, 255, 0, 255
 
 	framesCount = Int(ImageWidth(img)/wimg)
 
-	debug("    loadFrames("+_name+", "+_direction+", "+mask+") - New frame ("+width+", "+height+", "+framesCount+", "+wimg+")") //DEBUG
+	debug(1, "loadFrames - New frame ("+width+", "+height+", "+framesCount+", "+wimg+")") //DEBUG
 	
 	PokeByte mem, 0, framesCount
 	PokeInt  mem, 1, img
 	
-	debug("<<< loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
+	debug(1, "<loadFrames("+_name+", "+_direction+", "+mask+")") //DEBUG
 	Return mem 'muistipala, jotta voi palauttaa useita arvoja
 End Function 
 
-// ANIMAATIOT >>>>>>>>>>>>>>>
+// ANIMAATIOT >>>>>
 
 Function makeNewAnimation(_name$)
-	debug(">>> makeNewAnimation("+_name+")") //DEBUG
+	debug(1, ">makeNewAnimation("+_name+")") //DEBUG
 	dat = OpenToRead(mediadir + _name + "/Image.dat")
 	width = Int(ReadLine(dat))
 	height = Int(ReadLine(dat))
@@ -56,18 +76,18 @@ Function makeNewAnimation(_name$)
 	_directions$ = ReadLine(dat)
 	_speed = Int(ReadLine(dat))
 	directions = CountWords(_directions)
-	debug("    makeNewAnimation("+_name+") - found "+directions+" directions") //DEBUG
+	debug(1, "makeNewAnimation - found "+directions+" directions") //DEBUG
 	For i = 0 To directions 
 		_newDirection = Int(GetWord(_directions, i))
 		newAnimation(loadFrames(_name, _newDirection), _name, _newDirection, _speed)
 	Next i
 	CloseFile(dat)
-	debug("<<< makeNewAnimation("+_name+")") //DEBUG
+	debug(1, "<makeNewAnimation("+_name+")") //DEBUG
 EndFunction
 
 Function newAnimation(_frames, _name$, _direction, _speed)
 	'_frames muistipala, jotta voi palauttaa useita arvoja
-	debug(">>> newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
+	debug(1, ">newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
 	_newAnimation.animation		= New(animation)
 	_newAnimation\framesImg		= PeekInt(_frames,1)
 	_newAnimation\framesCount	= PeekByte(_frames,0)
@@ -75,9 +95,9 @@ Function newAnimation(_frames, _name$, _direction, _speed)
 	_newAnimation\speed			= _speed
 	_newAnimation\direction		= _direction
 	DeleteMEMBlock _frames
-	debug("<<< newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
+	debug(1, "<newAnimation("+_frames+", "+_name+", "+_direction+", "+_speed+")") //DEBUG
 	Return ConvertToInteger(_newAnimation)
-End Function
+EndFunction
 
 Function getAnimation(_name$, _direction)
 	retmin = 999
@@ -91,16 +111,15 @@ Function getAnimation(_name$, _direction)
 			EndIf
 		EndIf
 	Next _animation
-	If (ret = False) then debug("ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found") //DEBUG
+	If (ret = False) Then debug(1, "ERROR - getAnimation() failed - animation "+_name+"("+_direction+") Not found") //DEBUG
 	Return ret
-End Function
+EndFunction
 
-// ANIMAATIOT <<<<<<<<<<<<<<<
+// ANIMAATIOT <<<<<
 
 Function loadEverything()
-	debug(">>> loadEverything()") //DEBUG
-
-	debug("    loadEverything() - start loading tiles") //DEBUG
+	debug(1, ">loadEverything()") //DEBUG
+	debug(1, "loadEverything - start loading tiles") //DEBUG
 	ChDir "media/tiles"
 	StartSearch
 	Repeat 
@@ -109,17 +128,16 @@ Function loadEverything()
 		If Not (file = "." Or file = "..") Then 
 			If (FileExists(tiledir + file + "/Image.dat") And FileExists(tiledir + file + "/Image.png") And FileExists(tiledir + file + "/Prototype.dat")) Then
 				makeNewAnimation("tiles/"+file)
-
 				f = OpenToRead(tiledir + file+"/Prototype.dat")
 				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 1))
 				CloseFile(f)
 			Else
-				debug("aoe: ERROR - loadEverything() failed - could Not load tiles/"+file) //DEBUG
+				error("loadEverything()", "could Not load tiles/"+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
-	debug("    loadEverything() - start loading units") //DEBUG
+	debug(1, "loadEverything - start loading units") //DEBUG
 	ChDir "../units"
 	StartSearch
 	Repeat
@@ -133,12 +151,12 @@ Function loadEverything()
 				newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
-				debug("ERROR - loadEverything() failed - could Not load units/"+file) //DEBUG
+				error("loadEverything()", "could Not load units/"+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
-	debug("    loadEverything() - start loading buildings") //DEBUG
+	debug(1, "loadEverything - start loading buildings") //DEBUG
 	ChDir "../buildings"
 	StartSearch
 	Repeat
@@ -153,13 +171,13 @@ Function loadEverything()
 				newEntityPrototype(Int(ReadLine(f)), "buildings/" + file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("buildings/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
-				debug("aoe: ERROR - loadEverything() failed - could Not load buildings/"+file+" from "+buildingsdir+file) //DEBUG
+				error("loadEverything()", "could Not load buildings/"+file+" from "+buildingsdir+file) //DEBUG
 			EndIf
 		EndIf
 	Forever
 	EndSearch
 	ChDir "../.."
-	debug("<<< loadEverything()") //DEBUG
+	debug(1, "<loadEverything()") //DEBUG
 EndFunction
 
 Function drawWorld()
@@ -176,7 +194,8 @@ Function drawWorld()
 				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
 				_anim.animation = ConvertToType(_tilePrototype\anim)
 
-				DrawImage _anim\framesImg, tx, ty
+				DrawImage _anim\framesImg, tx-TW2, ty-TH2
+				Text tx, ty, _anim\name
 			EndIf
 		Next y
 	Next z
@@ -188,54 +207,75 @@ Function drawWorld()
 		tx = tilexToX(mx-2, my)
 		ty = tileyToY(mx-2, my)
 
-'		If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < SW) Then
+		If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < (SW-PanelHeight)) Then
 			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
 			_anim.animation = ConvertToType(_entityPrototype\anim)
 			_position.vector2 = ConvertToType(_entity\position)
 			img = _anim\framesImg
 
 			'ALAREUNASTA PIIRTÄÄÄÄÄÄÄ
+			tx = tx
+			ty = ty
+
 			DrawImageBox img, tx, ty, ImageWidth(img) / _anim\framesCount * _entity\frame, 0, TW, ImageHeight(img)
+
 			Color 255,255,255
 			Text tx, ty, Str(mx)+","+Str(my)+":"+_entity\frame+","+_anim\framesCount+" - "+_anim\speed
-'		EndIf
+		EndIf
 	Next _entity
-End Function
+EndFunction
 
 Function controls()
 	MouX = MouseX()
 	MouY = MouseY()
 
-	CamX = CamX - CamSpeed * (KeyDown(32) - KeyDown(30))
-	CamY = CamY - CamSpeed * (KeyDown(31) - KeyDown(17))
+	CamX = CamX - CamSpeed * ((KeyDown(32) Or KeyDown(cbKeyRight)) - (KeyDown(30) Or KeyDown(cbKeyLeft)))
+	CamY = CamY - CamSpeed * ((KeyDown(31) Or KeyDown(cbKeyDown)) - (KeyDown(17) or KeyDown(cbKeyUp)))
 	
 	hit = False
 	
+	If KeyHit(60) Then debugValuesVisible = -debugValuesVisible
+	
+	If mouseMoveControlActive Then
+		If (MouseX() < mouseMoveControlDistance) Or (MouseX() > SW-mouseMoveControlDistance) Or (MouseY() < mouseMoveControlDistance) Or (MouseY() > SH-mouseMoveControlDistance) Then
+			if (mouseMoveControlTimer = 0) Then mouseMoveControlTimer = Timer()		
+			If (Timer() - mouseMoveControlTimer > mouseMoveControlTimerDelay) Then
+				CamX = CamX + mouseMoveControlCamSpeed*((MouseX() < mouseMoveControlDistance) - (MouseX() > SW-mouseMoveControlDistance))
+				CamY = CamY + mouseMoveControlCamSpeed*((MouseY() < mouseMoveControlDistance) - (MouseY() > SH-mouseMoveControlDistance))
+			EndIf
+		Else 
+			mouseMoveControlTimer = 0
+		EndIf
+	EndIf
+	
 	If MouseHit(1) Then
-		deleteGroup(PlayerSelectedGroup)
-		PlayerSelectedGroup = addGroup()
+		debug(2, ">MouseHit")
+		groupEmpty(PlayerSelectedGroup)
+		PlayerSelectStartX = MouseX()
+		PlayerSelectStartY = MouseY()
+		debug(2, "<MouseHit")
 	ElseIf MouseUp(1) Then
-		For _entity.entity = Each entity
-			mx# = positionTotileX(_entity\position)
-			my# = positionTotileY(_entity\position)
+		debug(2, ">MouseUp")
+		For tEntity.entity = Each entity
+			mx# = positionTotileX(tEntity\position)
+			my# = positionTotileY(tEntity\position)
 		
 			tx = tilexToX(mx-2, my)
 			ty = tileyToY(mx-2, my)
 
-			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
-			_anim.animation = ConvertToType(_entityPrototype\anim)
-			img = _anim\framesImg
+			tEntityPrototype.entityPrototype = ConvertToType(tEntity\prototype)
+			tAnim.animation = ConvertToType(tEntityPrototype\anim)
+			img = tAnim\framesImg
 
-			tw = ImageWidth(img)/_anim\framesCount
+			tw = ImageWidth(img) / tAnim\framesCount
 			th = ImageHeight(img)
 
 			If (MouX > tx And MouX < (tx + tw) And MouY > ty And MouY < (ty + th)) Then
-				addEntityToGroup(PlayerSelectedGroup, _entity)
-				PlayerSelectedGroup = addGroup()
+				groupAddEntity(PlayerSelectedGroup, ConvertToInteger(tEntity))
 				hit = True
 			EndIf
-		Next _entity
-		If (hit = False) then PlayerSelectedGroup = 0
+		Next tEntity
+		debug(2, "<MouseUp")
 	EndIf
 EndFunction
 
@@ -247,42 +287,53 @@ Function drawGUI()
 	Color cbBlackSkin
 	Box 0, h+2, SW, SH
 
-	If (PlayerSelect <> 0) Then 
-		ps.entity = ConvertToType(PlayerSelect)
-		psPrototype.entityPrototype = ConvertToType(ps\prototype)
+	tPlayerSelectedGroup.group = ConvertToType(PlayerSelectedGroup)
 
-		psPosition.vector2 = ConvertToType(ps\position)
+'	ps.entity = ConvertToType(PlayerSelect)
+'	psPrototype.entityPrototype = ConvertToType(ps\prototype)
 
-		Color 255,255,255
-		Text 100, h + 10, psPrototype\name
-		Text 200, h + 10, "("+psPosition\x+","+psPosition\y+")"
-		Text 100, h + 20, "hp: " + ps\hp+"/"+psPrototype\hp
-		Text 100, h + 30, "("+psPrototype\attack+", "+psPrototype\defence+", "+psPrototype\armory+", "+psPrototype\range+")"
-		Text 100, h + 50, "state: " + ps\state
+'	psPosition.vector2 = ConvertToType(ps\position)
+
+	Color 255,255,255
+
+	If (debugValuesVisible = 1) Then
+		Text 2, 2, entityCounter + "/" + tileCounter
+		Text 3, 12, tPlayerSelectedGroup\entitiesCount
+	EndIf
+
+	If (tPlayerSelectedGroup\entitiesCount = 1) Then
+		For i = 0 To maxGroupEntites
+			
+		Next i
+	ElseIf(tPlayerSelectedGroup\entitiesCount > 1) Then
+		For i = 0 To maxGroupEntites
+			
+		Next i
 	EndIf
 EndFunction
 
 Function generateMap()
-	debug(">>> generateMap()") //DEBUG
+	debug(1, ">generateMap()") //DEBUG
 	newEntity(getEntityPrototype("buildings/tower"), newPosition(0, 0))
 	For x = 0 To MS
 		For y = 0 To MS
 			prototype = getTilePrototype("tiles/grass")
-			map(x, y) = newTile(prototype)
 			
-			Select(Rand(10)) 
-				Case 1
-					newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
-				Case 2
-					newEntity(getEntityPrototype("units/vieteri"), newPosition(x, y))
-				Case 3
-					newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
-				Default
-			End Select
+			map(x, y) = newTile(prototype)
+			m.tile = ConvertToType(map(x, y))
+			If (m\isBlocked = False) Then
+				Select(Rand(100)) 
+					Case 1 : newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
+					Case 2 : newEntity(getEntityPrototype("units/vieteri"), newPosition(x, y))
+					Case 3 : newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
+					//TODO: Taristus, voiko generoida
+					Default
+				End Select
+			EndIf
 		Next y
 	Next x
-	debug("<<< generateMap()") //DEBUG
-End Function
+	debug(1, "<generateMap()") //DEBUG
+EndFunction
 
 Function updateAI()
 	For tEntity.entity = Each entity
@@ -302,10 +353,23 @@ Function updateAI()
 EndFunction
 
 Function initMap()
-	debug(">>> iniMap()") //DEBUG
+	debug(1, ">iniMap()") //DEBUG
 	ReDim map(MS, MS)
 
 	CamX = 0
 	CamY = 0	
-	debug("<<< iniMap()") //DEBUG
+	debug(1, "<iniMap()") //DEBUG
 End Function
+
+
+
+
+
+
+Function str_repeat(txt$, c)
+	If c < 1 Then Return txt
+	For i = 1 To c
+		txt = txt + txt
+	Next i
+	Return txt
+EndFunction

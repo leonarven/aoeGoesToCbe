@@ -15,7 +15,7 @@ Function tileyToY(_tx, _ty)
 End Function
 
 Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
-	debug(">>> newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")") //DEBUG
+	debug(1, ">newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")") //DEBUG
 
 	tilePrototypeCounter = tilePrototypeCounter + 1
 	_newTilePrototype.tilePrototype = New(tilePrototype)
@@ -25,7 +25,7 @@ Function newTilePrototype(_name$, _isWalkable, _isSailable, _animation)
 	_newTilePrototype\isSailable = _isSailable
 	_newTilePrototype\anim = _animation
 	
-	debug("<<< newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")") //DEBUG
+	debug(1, "<newTilePrototype("+_isWalkable+","+_isSailable+","+_animation+")") //DEBUG
 	Return ConvertToInteger(_newTilePrototype)
 EndFunction
 
@@ -33,7 +33,7 @@ Function getTilePrototype(_name$)
 	For _tilePrototype.tilePrototype = Each tilePrototype
 		If (_tilePrototype\name = _name) Then Return ConvertToInteger(_tilePrototype)
 	Next _tilePrototype
-	debug("ERROR - getTileprototype() failed - tile "+_name+" Not found") //DEBUG
+	error("getTileprototype()", "tile "+_name+" Not found") //DEBUG
 	Return False
 EndFunction
 
