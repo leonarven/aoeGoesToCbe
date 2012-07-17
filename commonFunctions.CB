@@ -124,9 +124,11 @@ Function loadEverything()
 	StartSearch
 	Repeat 
 		file$ = FindFile()
+		debug(1, "loadEverything - found possible tile tiles/"+file) //DEBUG
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
 			If (FileExists(tiledir + file + "/Image.dat") And FileExists(tiledir + file + "/Image.png") And FileExists(tiledir + file + "/Prototype.dat")) Then
+				debug(1, "loadEverything - load tiles/"+file) //DEBUG
 				makeNewAnimation("tiles/"+file)
 				f = OpenToRead(tiledir + file+"/Prototype.dat")
 				newTilePrototype("tiles/"+file, Int(ReadInt(f)), Int(ReadInt(f)), getAnimation("tiles/"+file, 1))
@@ -142,12 +144,13 @@ Function loadEverything()
 	StartSearch
 	Repeat
 		file$ = FindFile()
+		debug(1, "loadEverything - found possible unit units/"+file) //DEBUG
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
 			If (FileExists(unitsdir + file+"/Image.dat") And FileExists(unitsdir+file+"/Image.png") And FileExists(unitsdir + file + "/Prototype.dat")) Then
+				debug(1, "loadEverything - load units/"+file) //DEBUG
 				makeNewAnimation("units/"+file)
 				f = OpenToRead(unitsdir + file + "/Prototype.dat")
-
 				newEntityPrototype(Int(ReadLine(f)), "units/"+file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("units/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
@@ -161,13 +164,13 @@ Function loadEverything()
 	StartSearch
 	Repeat
 		file$ = FindFile()
+		debug(1, "loadEverything - found possible building buildings/"+file) //DEBUG
 		If file = "" Then Exit 'no more files
 		If Not (file = "." Or file = "..") Then 
 			If (FileExists(buildingsdir + file+"/Image.dat") And FileExists(buildingsdir + file + "/Image.png") And FileExists(buildingsdir + file + "/Prototype.dat")) Then
+				debug(1, "loadEverything - load buildings/"+file) //DEBUG
 				makeNewAnimation("buildings/" + file)
-
 				f = OpenToRead(buildingsdir + file + "/Prototype.dat")
-
 				newEntityPrototype(Int(ReadLine(f)), "buildings/" + file, Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), Int(ReadLine(f)), getAnimation("buildings/"+file, 0),Int(ReadLine(f)), newPosition(Int(ReadLine(f)), Int(ReadLine(f))))
 				CloseFile(f)
 			Else
@@ -194,35 +197,35 @@ Function drawWorld()
 				_tilePrototype.tilePrototype = ConvertToType(_tile\prototype)
 				_anim.animation = ConvertToType(_tilePrototype\anim)
 
-				DrawImage _anim\framesImg, tx-TW2, ty-TH2
-				Text tx, ty, _anim\name
+				DrawImage _anim\framesImg, tx-TW2, ty
+'				Text tx, ty, _anim\name
 			EndIf
 		Next y
 	Next z
 
-	For _entity.entity = Each entity
-		mx# = positionTotileX(_entity\position)
-		my# = positionTotileY(_entity\position)
+	For tEntity.entity = Each entity
+		mx# = positionTotileX(tEntity\position)
+		my# = positionTotileY(tEntity\position)
 	
 		tx = tilexToX(mx-2, my)
 		ty = tileyToY(mx-2, my)
 
 		If (tx > -TW*2 And tx < SW And ty > -TH*2 And ty < (SW-PanelHeight)) Then
-			_entityPrototype.entityPrototype = ConvertToType(_entity\prototype)
-			_anim.animation = ConvertToType(_entityPrototype\anim)
-			_position.vector2 = ConvertToType(_entity\position)
-			img = _anim\framesImg
+			tEntityPrototype.entityPrototype = ConvertToType(tEntity\prototype)
+			tAnim.animation = ConvertToType(tEntityPrototype\anim)
+			tPosition.vector2 = ConvertToType(tEntity\position)
+			img = tAnim\framesImg
 
 			'ALAREUNASTA PIIRTÄÄÄÄÄÄÄ
 			tx = tx
 			ty = ty
 
-			DrawImageBox img, tx, ty, ImageWidth(img) / _anim\framesCount * _entity\frame, 0, TW, ImageHeight(img)
+			DrawImageBox img, tx, ty, ImageWidth(img) / tAnim\framesCount * tEntity\frame, 0, TW, ImageHeight(img)
 
 			Color 255,255,255
-			Text tx, ty, Str(mx)+","+Str(my)+":"+_entity\frame+","+_anim\framesCount+" - "+_anim\speed
+			Text tx, ty, "("+ConvertToInteger(tEntity)+")"+Str(mx)+","+Str(my)+":"+tEntity\frame+","+tAnim\framesCount+" - "+tAnim\speed
 		EndIf
-	Next _entity
+	Next tEntity
 EndFunction
 
 Function controls()
@@ -250,12 +253,12 @@ Function controls()
 	
 	If MouseHit(1) Then
 		debug(2, ">MouseHit")
-		groupEmpty(PlayerSelectedGroup)
 		PlayerSelectStartX = MouseX()
 		PlayerSelectStartY = MouseY()
 		debug(2, "<MouseHit")
 	ElseIf MouseUp(1) Then
 		debug(2, ">MouseUp")
+		groupEmpty(PlayerSelectedGroup)
 		For tEntity.entity = Each entity
 			mx# = positionTotileX(tEntity\position)
 			my# = positionTotileY(tEntity\position)
@@ -294,6 +297,8 @@ Function drawGUI()
 
 '	psPosition.vector2 = ConvertToType(ps\position)
 
+	a = 0
+
 	Color 255,255,255
 
 	If (debugValuesVisible = 1) Then
@@ -302,14 +307,19 @@ Function drawGUI()
 	EndIf
 
 	If (tPlayerSelectedGroup\entitiesCount = 1) Then
-		For i = 0 To maxGroupEntites
+		For i = 0 To maxGroupEntities
 			
 		Next i
 	ElseIf(tPlayerSelectedGroup\entitiesCount > 1) Then
-		For i = 0 To maxGroupEntites
-			
+		For i = 0 To maxGroupEntities
+
 		Next i
 	EndIf
+	For i = 0 To maxGroupEntities
+		p = PeekInt(tPlayerSelectedGroup\entities, i*4)
+		Text SW-80, I*10, "["+p+"]"
+	Next i
+	Text SW-50, h+10, a + ":" + tPlayerSelectedGroup\entitiesCount
 EndFunction
 
 Function generateMap()
@@ -322,7 +332,7 @@ Function generateMap()
 			map(x, y) = newTile(prototype)
 			m.tile = ConvertToType(map(x, y))
 			If (m\isBlocked = False) Then
-				Select(Rand(100)) 
+				Select(Rand(20)) 
 					Case 1 : newEntity(getEntityPrototype("units/soldier"), newPosition(x, y))
 					Case 2 : newEntity(getEntityPrototype("units/vieteri"), newPosition(x, y))
 					Case 3 : newEntity(getEntityPrototype("buildings/tower"), newPosition(x, y))
@@ -353,18 +363,13 @@ Function updateAI()
 EndFunction
 
 Function initMap()
-	debug(1, ">iniMap()") //DEBUG
+	debug(1, ">initMap()") //DEBUG
 	ReDim map(MS, MS)
 
-	CamX = 0
+	CamX = 500
 	CamY = 0	
-	debug(1, "<iniMap()") //DEBUG
+	debug(1, "<initMap()") //DEBUG
 End Function
-
-
-
-
-
 
 Function str_repeat(txt$, c)
 	If c < 1 Then Return txt

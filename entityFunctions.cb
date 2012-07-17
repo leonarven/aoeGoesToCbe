@@ -63,16 +63,17 @@ Function groupAddEntity(_group, _entity)
 	tGroup.group = ConvertToType(_group)
 	t = -1
 	If (tGroup\entitiesCount < maxGroupEntities) Then 
-		For i = 0 To maxGroupEntites
-			p = PeekInt(tGroup\entities, i)
+		For i = 0 To maxGroupEntities
+			p = PeekInt(tGroup\entities, i*4)
 			If (p = 0 And t = -1) Then t  = i
 			If (p = _entity) Then
+				debug(2, "entity added To group!")
 				debug(2, "<groupAddEntity("+_group+", "+_entity+")")
 				Return False
 			EndIf
 		Next i
 		If (t <> -1) Then
-			PokeInt tGroup\entities, t, _entity
+			PokeInt tGroup\entities, t*4, _entity
 			tGroup\entitiesCount = tGroup\entitiesCount + 1 
 		EndIf
 	EndIf
@@ -80,27 +81,39 @@ Function groupAddEntity(_group, _entity)
 EndFunction
 
 Function groupDeleteEntity(_group, _entity)
+	debug(2, ">groupDeleteEntity("+_group+", "+_entity+")")
 	tGroup.group = ConvertToType(_group)
-	For i = 0 To maxGroupEntites
-		p = PeekInt(tGroup\entities, i)
+	For i = 0 To maxGroupEntities
+		p = PeekInt(tGroup\entities, i*4)
 		If (p = _entity) Then
-			PokeInt tGroup\entities, i, 0
+			PokeInt tGroup\entities, i*4, 0
 			tGroup\entitiesCount = tGroup\entitiesCount - 1 
+			debug(2, "entity deleted from group!")
+			debug(2, "<groupDeleteEntity("+_group+", "+_entity+")")
 			Return False
 		EndIf
 	Next i
+	debug(2, "entity Not found in group")
+	debug(2, "<groupDeleteEntity("+_group+", "+_entity+")")
 EndFunction
 
 Function addGroup()
+	debug(2, ">addGroup()")
 	_newGroup.group = New(group)
 	_newGroup\speed = 0
 	_newGroup\entitiesCount = 0
 	_newGroup\entities = MakeMEMBlock(maxEntites * 4)
+	For i = 0 To maxGroupEntities
+		PokeInt _newGroup\entities, i*4, 0
+	Next i
 	_newGroup\isActivated = False
+	debug(2, "group added")
+	debug(2, "<addGroup()")
 	Return ConvertToInteger(_newGroup)
 EndFunction
 
 Function deleteGroup(_group)
+	debug(2, ">deleteGroup("+_group+")")
 	For tGroup.group = Each group
 		_tGroup = ConvertToInteger(tGroup)
 		If (_tGroup = _group) Then 
@@ -108,6 +121,7 @@ Function deleteGroup(_group)
 			Delete tGroup
 		EndIf
 	Next tGroup
+	debug(2, "<deleteGroup("+_group+")")
 EndFunction
 
 'Function getGroup(_group)
@@ -120,17 +134,22 @@ EndFunction
 'EndFunction
 
 Function groupEmpty(_group)
+	debug(2, ">groupEmpty("+_group+")")
 	tGroup.group = ConvertToType(_group)
-	For i = 0 To maxGroupEntites
-		PokeInt tGroup\entities, i, 0
+	For i = 0 To maxGroupEntities
+		PokeInt tGroup\entities, i*4, 0
 	Next i
+	tGroup\entitiesCount = 0
+	debug(2, "<groupEmpty("+_group+")")
 EndFunction
 
 Function groupActivate(_group)
+	debug(2, ">groupActivate("+_group+")")
 	tGroup.group = ConvertToType(_group)
 	tGroup\isActivated = True
 	tGroup\speed = 999
 	//todo: kaikki läpi, hitain esiin
+	debug(2, "<groupActivate("+_group+")")
 EndFunction
 
 Function groupEntitiesCount(_group)

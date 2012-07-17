@@ -27,12 +27,12 @@ Global mouseMoveControlTimerDelay : mouseMoveControlTimerDelay = 1000
 Global mouseMoveControlDistance : mouseMoveControlDistance = 20
 Global mouseMoveControlCamSpeed : mouseMoveControlCamSpeed = 4
 Global mouseMoveControlActive : mouseMoveControlActive = 0
+Global entityPrototypeCounter
+Global tileCounter
 
 Global debugLevel : debugLevel = 0
 Global debugValuesVisible : debugValuesVisible = 1
 Global entityCounter
-Global entityPrototypeCounter
-Global tileCounter
 Global tilePrototypeCounter
 
 Global verboseMax: verboseMax = 2
@@ -74,8 +74,12 @@ SCREEN SW, SH
 cbeShowConsole(True)
 Dim map(MS, MS)
 
+
+debug(1, "run initMap()") //DEBUG
 initMap()
+debug(1, "run loadEverything()") //DEBUG
 loadEverything()
+debug(1, "run generateMap()") //DEBUG
 generateMap()
 
 Repeat
